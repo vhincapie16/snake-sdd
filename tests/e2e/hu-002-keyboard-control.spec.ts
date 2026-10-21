@@ -4,8 +4,8 @@ test.describe("HU-002 / RF-006 a RF-010", () => {
   test("reconoce la primera dirección válida y mueve solo en el tick siguiente", async ({
     page,
   }) => {
+    await page.clock.install({ time: new Date("2026-10-21T11:00:00.000Z") });
     await page.goto("/");
-    await page.clock.install();
     await page.clock.pauseAt(new Date("2026-10-21T12:00:00.000Z"));
     await page.keyboard.press("Enter");
 
@@ -30,8 +30,8 @@ test.describe("HU-002 / RF-006 a RF-010", () => {
   test("rechaza la opuesta sin consumir la entrada y admite las cuatro flechas", async ({
     page,
   }) => {
+    await page.clock.install({ time: new Date("2026-10-21T11:00:00.000Z") });
     await page.goto("/");
-    await page.clock.install();
     await page.clock.pauseAt(new Date("2026-10-21T12:00:00.000Z"));
     await page.keyboard.press("Enter");
 
