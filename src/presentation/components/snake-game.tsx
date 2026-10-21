@@ -3,6 +3,7 @@
 import type { GameState } from "@/domain/game/model";
 import { GameControls } from "@/presentation/components/game-controls";
 import { GameStatus } from "@/presentation/components/game-status";
+import { GameBoard } from "@/presentation/components/game-board";
 import { RestartConfirmation } from "@/presentation/components/restart-confirmation";
 import { useSnakeGame } from "@/presentation/hooks/use-snake-game";
 
@@ -15,15 +16,16 @@ export function SnakeGame({
   return (
     <main className="app-shell">
       <article className="game-card">
-        <p className="eyebrow">Incremento HU-002 · KAN-1</p>
+        <p className="eyebrow">Incremento HU-003 · KAN-3</p>
         <h1>Snake SDD</h1>
         <p>
-          Controla el ciclo de la partida y dirige la serpiente con el teclado.
-          El alimento, las colisiones y la persistencia se incorporarán en
+          Consume alimentos para crecer y sumar 10 puntos por alimento, a ritmo
+          constante. Las colisiones y la persistencia se incorporarán en
           incrementos posteriores aprobados.
         </p>
 
         <GameStatus state={game.state} />
+        <GameBoard state={game.state} />
         <GameControls
           status={game.state.status}
           onStart={game.start}

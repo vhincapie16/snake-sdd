@@ -115,17 +115,17 @@ description: "Tareas propuestas para implementar Snake SDD"
 
 ### Pruebas de HU-003
 
-- [ ] T035 [P] [US3] Escribir pruebas unitarias inicialmente fallidas de alimento único, celda libre y reposición para RF-011, RF-012 y RF-015 en `tests/unit/game/food.test.ts`
-- [ ] T036 [P] [US3] Escribir pruebas unitarias inicialmente fallidas de consumo único, crecimiento, suma exacta de 10, tablero completo y tick constante de 150 ms para RF-013, RF-014 y RF-029 en `tests/unit/game/scoring.test.ts`
-- [ ] T037 [P] [US3] Escribir recorrido E2E inicialmente fallido con posiciones deterministas para RF-011 a RF-015 y RF-029 en `tests/e2e/hu-003-food-and-score.spec.ts`
+- [x] T035 [P] [US3] Escribir pruebas unitarias inicialmente fallidas de alimento único, celda libre y reposición para RF-011, RF-012 y RF-015 en `tests/unit/game/food.test.ts`
+- [x] T036 [P] [US3] Escribir pruebas unitarias inicialmente fallidas de consumo único, crecimiento, suma exacta de 10, tablero completo y tick constante de 150 ms para RF-013, RF-014 y RF-029 en `tests/unit/game/scoring.test.ts`
+- [x] T037 [P] [US3] Escribir recorrido E2E inicialmente fallido con posiciones deterministas para RF-011 a RF-015 y RF-029 en `tests/e2e/hu-003-food-and-score.spec.ts`
 
 ### Implementación de HU-003
 
-- [ ] T038 [P] [US3] Implementar suma inmutable de 10 y crecimiento de un segmento exactamente una vez en `src/domain/game/scoring.ts`
-- [ ] T039 [P] [US3] Implementar selección de alimento exclusivamente entre celdas libres mediante el puerto inyectable en `src/domain/game/food.ts`
-- [ ] T040 [US3] Integrar consumo, liberación de cola, crecimiento, reposición y tablero completo en el orden aprobado dentro de `src/domain/game/state-machine.ts`
-- [ ] T041 [US3] Mantener el temporizador efectivo constante en 150 ms sin depender de puntuación, tiempo o consumos en `src/presentation/hooks/use-snake-game.ts`
-- [ ] T042 [US3] Representar serpiente, alimento y puntuación sin depender solo del color y hacer pasar las pruebas HU-003 en `src/presentation/components/game-board.tsx` y `src/presentation/components/game-status.tsx`
+- [x] T038 [P] [US3] Implementar suma inmutable de 10 y crecimiento de un segmento exactamente una vez en `src/domain/game/scoring.ts`
+- [x] T039 [P] [US3] Implementar selección de alimento exclusivamente entre celdas libres mediante el puerto inyectable en `src/domain/game/food.ts`
+- [x] T040 [US3] Integrar consumo, liberación de cola, crecimiento, reposición y tablero completo en el orden aprobado dentro de `src/domain/game/state-machine.ts`
+- [x] T041 [US3] Mantener el temporizador efectivo constante en 150 ms sin depender de puntuación, tiempo o consumos en `src/presentation/hooks/use-snake-game.ts`
+- [x] T042 [US3] Representar serpiente, alimento y puntuación sin depender solo del color y hacer pasar las pruebas HU-003 en `src/presentation/components/game-board.tsx` y `src/presentation/components/game-status.tsx`
 
 **Checkpoint**: HU-003 funciona con generador y reloj controlados, sin ampliar el alcance.
 
@@ -336,3 +336,25 @@ HU-005: T051 + T052 + T053 + T054 + T055 + T056 + T057
 - El desplazamiento ocurre únicamente en el tick fijo de 150 ms. No se implementaron alimento, crecimiento, colisiones ni persistencia.
 - Evidencia local: `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run openapi:lint`, `npm run test:unit` (22), `npm run test:integration` (10), `npm run build` y `npm run test:e2e` (9, Chromium/build de producción): códigos 0 tras corregir los fallos del alcance.
 - RF-006–RF-010 quedan trazados en `movement.test.ts` y `hu-002-keyboard-control.spec.ts`; la suite E2E conserva seis pruebas de regresión de HU-001.
+
+## Registro de ejecución autorizado — HU-003 / KAN-3
+
+- Propuesta de implementación autorizada expresamente en este chat el 2026-10-21 para T035–T042, commit, push y PR Draft; pendiente de revisión y aceptación humana, sin autorización de merge ni escrituras Jira.
+- Rama `feature/KAN-3-food-scoring` desde `origin/main` actualizado (`ac5a06f`, PR #8 y #9 integrados), en worktree limpio; se conserva el checkout original con su cambio local en `next-env.d.ts`.
+- T035–T037: pruebas escritas antes del código; fallos iniciales por ausencia de los módulos de dominio y del tablero. La ejecución inicial de E2E reutilizó un servidor HU-002 ya abierto; se aisló después en el puerto 3003 mediante configuración temporal externa. En desarrollo no se observó el inicio bajo reloj pausado; la validación definitiva usa el build de producción, como CI.
+- T038–T042: alimento único validado mediante el puerto existente, crecimiento inmutable y suma única de 10, reposición entre celdas libres, cola conservada solo al consumir y tablero completo con resultado pendiente sin pedir otra posición. El temporizador conserva sus 150 ms y depende solo del estado de ejecución. SVG y leyenda distinguen cabeza, cuerpo y alimento por formas, además del color; puntuación y longitud son texto accesible.
+- Casos límite verificados: generador inválido, última celda libre, ausencia de celdas libres, consumo repetido, pausa/finalización, liberación de cola y longitud mínima sin consumo. Esta última prueba detectó y corrigió la conservación indebida de la cabeza anterior. La expectativa E2E de reposición tras el segundo consumo se corrigió a `(5,0)`, pues `(1,0)` permanece ocupada.
+- Evidencia local final: `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run openapi:lint`, `npm run test:unit` (40, de ellas 18 de HU-003), `npm run test:integration` (10), `npm run build` y Playwright sobre producción con un worker, puerto aislado y sin reintentos (11 E2E): códigos 0. Solo se repitieron controles afectados por las correcciones.
+- T043–T077 permanecen pendientes. No se implementan colisiones ni persistencia; no se modifican pruebas anteriores, la corrección del reloj del PR #9, Skills, hooks, Spec Kit ni configuración de CI. La CI del commit y la decisión humana se consultarán en el PR de KAN-3.
+
+### Corrección tras revisión manual — PR #10
+
+- Ajustes autorizados en este chat el 2026-10-21, conservando HU-001: `R` y el botón Reiniciar dejan una partida preparada e inmóvil; solo `Enter` o Iniciar la ponen en curso. No se modifica la especificación ni la máquina de estados.
+- Reproducido en Chromium sin reloj falso: tras pulsar Reiniciar, el foco permanece en ese botón; Enter despachaba START y también su clic nativo, causando otro reinicio. Se evita el clic nativo únicamente al iniciar desde preparada, sin alterar los botones del diálogo de resultados.
+- Reproducida la falta de hidratación en desarrollo al usar `127.0.0.1`, mientras `localhost` funcionaba. Next.js bloqueaba HMR; el registro manual también mostraba la IP local. Se admiten explícitamente loopback y las direcciones IPv4 de las interfaces del propio equipo mediante `allowedDevOrigins`, sin comodines ni orígenes externos.
+- El recorrido en la IP local detectó además `crypto.randomUUID is not a function` al reiniciar por HTTP. El adaptador conserva esa API cuando existe y, si no, genera UUID v4 con 16 bytes de `crypto.getRandomValues`, sin usar `Math.random` ni alterar el contrato de identificación.
+- Panel visible: Estado, Puntuación y Ritmo. Cabeza, dirección y longitud siguen en el modelo y como datos ocultos de observación para conservar todas las aserciones funcionales anteriores.
+- Nueva regresión E2E sin reloj falso: inicio con Enter sin clic previo, pausa/reanudación por botón, reinicio por botón y R, inmovilidad hasta Enter incluso con foco en Reiniciar, flecha sin desplazamiento de página y panel simplificado. CI ejecuta este recorrido también con `next dev`, además del build de producción.
+- Límite actual: todavía no se detectan choques contra pared o cuerpo, ni existe transición a «Partida terminada» por choque; corresponde a HU-004 (T043–T049). HU-003 conserva exclusivamente el final válido por tablero completado (RN-010).
+- Comprobación manual: ejecutar `npm run dev` y abrir el puerto que anuncie Next.js; al cargar pulsar Enter sin seleccionar nada. Probar flechas, Pausar/Reanudar y Espacio. Reiniciar por botón o R debe mostrar Preparada y detener el movimiento; pulsar Enter de nuevo sin cambiar el foco debe iniciar. Solo deben verse Estado, Puntuación y Ritmo en el panel. No usar choques como condición de finalización en este incremento.
+- Evidencia de la corrección: la regresión falló primero en Enter con foco en Reiniciar y después detectó el error UUID en la IP local; ambos recorridos pasan tras corregirlos. Verificación final con dependencias existentes y copia aislada en LF: formato, lint, tipos, OpenAPI, build, 42 unitarias, 10 de integración, 13 E2E de producción y 2 E2E con `next dev`, sin reintentos: códigos 0. También se verificó el navegador contra el servidor manual en localhost, loopback y la IP del propio equipo. El primer control de formato de la copia detectó CRLF de la exportación; se corrigió únicamente esa exportación, sin reformatear el repositorio ni tocar `next-env.d.ts` local.

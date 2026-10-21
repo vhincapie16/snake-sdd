@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useReducer } from "react";
 import type { GameDependencies } from "@/application/ports/game-dependencies";
 import {
   TICK_INTERVAL_MS,
-  type Cell,
   type Direction,
   type GameState,
   type PendingResult,
@@ -15,6 +14,8 @@ import {
   transitionGame,
   type GameCommand,
 } from "@/domain/game/state-machine";
+import { listFreeCells } from "@/domain/game/food";
+import { createBrowserGameId } from "@/infrastructure/random/browser-game-id";
 
 export type SaveResult = (result: PendingResult) => Promise<SavedResultRef>;
 
@@ -22,8 +23,6 @@ export interface UseSnakeGameOptions {
   readonly initialState?: GameState;
   readonly saveResult?: SaveResult;
 }
-
-const initialFood: Cell = { x: 15, y: 10 };
 
 const DIRECTION_BY_KEY: Readonly<Partial<Record<string, Direction>>> = {
   ArrowUp: "up",
@@ -35,8 +34,15 @@ const DIRECTION_BY_KEY: Readonly<Partial<Record<string, Direction>>> = {
 function createBrowserDependencies(): GameDependencies {
   return {
     clock: { now: () => new Date() },
-    uuid: { create: () => crypto.randomUUID() },
-    positions: { nextAvailable: () => initialFood },
+    uuid: { create: createBrowserGameId },
+    positions: {
+      nextAvailable: (occupied) => {
+        const free = listFreeCells(occupied);
+        const food = free[Math.floor(Math.random() * free.length)];
+        if (!food) throw new Error("No quedan celdas libres para alimento.");
+        return food;
+      },
+    },
   };
 }
 
@@ -94,7 +100,11 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
         dispatch({ type: "QUEUE_DIRECTION", direction: requestedDirection });
         return;
       }
-      if (event.key === "Enter") dispatch({ type: "START" });
+      if (event.key === "Enter" && state.status === "prepared") {
+        event.preventDefault();
+        dispatch({ type: "START" });
+        return;
+      }
       if (event.code === "Space") {
         event.preventDefault();
         dispatch({ type: "TOGGLE_PAUSE" });

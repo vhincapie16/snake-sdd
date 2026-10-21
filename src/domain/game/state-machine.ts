@@ -1,12 +1,13 @@
 import {
   areCellsEqual,
-  isCellInsideBoard,
   type Cell,
   type Direction,
   type GameState,
   type SavedResultRef,
 } from "@/domain/game/model";
 import { isOppositeDirection, nextCell } from "@/domain/game/movement";
+import { generateFood } from "@/domain/game/food";
+import { consumeFood } from "@/domain/game/scoring";
 
 export interface GameTransitionDependencies {
   readonly clock: { now(): Date };
@@ -36,13 +37,7 @@ const INITIAL_SEGMENTS = [
 export function createInitialGame(
   dependencies: GameTransitionDependencies,
 ): GameState {
-  const food = dependencies.positions.nextAvailable(INITIAL_SEGMENTS);
-  if (
-    !isCellInsideBoard(food) ||
-    INITIAL_SEGMENTS.some((segment) => areCellsEqual(segment, food))
-  ) {
-    throw new Error("El generador produjo una configuración inicial inválida.");
-  }
+  const food = generateFood(INITIAL_SEGMENTS, dependencies.positions);
 
   return {
     gameId: dependencies.uuid.create(),
@@ -159,17 +154,48 @@ export function transitionGame(
     case "TICK":
       if (state.status !== "running") return state;
       const direction = state.pendingDirection ?? state.effectiveDirection;
-      const [head, ...remainingSegments] = state.snake.segments;
-      const movedSegments = [
-        nextCell(head, direction),
-        head,
-        ...remainingSegments.slice(0, -1),
-      ] as const;
-      return {
+      const [head] = state.snake.segments;
+      const nextHead = nextCell(head, direction);
+      const consumed =
+        state.food !== null && areCellsEqual(nextHead, state.food);
+      const { snake, score } = consumed
+        ? consumeFood(state.snake, nextHead, state.score)
+        : {
+            snake: {
+              segments: [
+                nextHead,
+                ...state.snake.segments.slice(0, -1),
+              ] as const,
+            },
+            score: state.score,
+          };
+      const food = consumed
+        ? generateFood(snake.segments, dependencies.positions)
+        : state.food;
+      const moved: GameState = {
         ...state,
-        snake: { segments: movedSegments },
+        snake,
+        score,
+        food,
         effectiveDirection: direction,
         pendingDirection: null,
+      };
+      if (!consumed || food !== null) return moved;
+      const finishedAt = dependencies.clock.now().toISOString();
+      return {
+        ...moved,
+        status: "finished",
+        finishReason: "boardCompleted",
+        finishedAt,
+        resultState: {
+          status: "pending",
+          result: {
+            gameId: state.gameId,
+            score,
+            achievedAt: finishedAt,
+            aliasInput: "",
+          },
+        },
       };
   }
 }

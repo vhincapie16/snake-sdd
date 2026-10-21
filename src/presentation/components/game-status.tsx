@@ -21,26 +21,26 @@ export function GameStatus({ state }: Readonly<{ state: GameState }>) {
         <span className="status-label">Estado</span>
         <strong>{STATUS_LABEL[state.status]}</strong>
       </div>
-      <div className="status-item">
+      <div className="status-item" aria-live="polite">
         <span className="status-label">Puntuación</span>
         <strong data-testid="score">{state.score}</strong>
       </div>
+      <span hidden data-testid="snake-length">
+        {state.snake.segments.length}
+      </span>
+      {state.finishReason === "boardCompleted" ? (
+        <p>Tablero completado</p>
+      ) : null}
       <div className="status-item">
         <span className="status-label">Ritmo</span>
         <strong>150 ms (constante)</strong>
       </div>
-      <div className="status-item" aria-live="polite">
-        <span className="status-label">Dirección aceptada</span>
-        <strong data-testid="accepted-direction">
-          {DIRECTION_LABEL[state.pendingDirection ?? state.effectiveDirection]}
-        </strong>
-      </div>
-      <div className="status-item">
-        <span className="status-label">Cabeza</span>
-        <strong data-testid="snake-head">
-          {state.snake.segments[0].x},{state.snake.segments[0].y}
-        </strong>
-      </div>
+      <span hidden data-testid="accepted-direction">
+        {DIRECTION_LABEL[state.pendingDirection ?? state.effectiveDirection]}
+      </span>
+      <span hidden data-testid="snake-head">
+        {state.snake.segments[0].x},{state.snake.segments[0].y}
+      </span>
     </section>
   );
 }
