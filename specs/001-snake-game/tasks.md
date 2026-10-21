@@ -1,0 +1,314 @@
+---
+
+description: "Tareas propuestas para implementar Snake SDD"
+---
+
+# Tasks: Juego Snake web
+
+**Entrada**: documentos de diseño aprobados de `specs/001-snake-game/`.
+
+**Prerrequisitos**: `spec.md`, `plan.md`, `research.md`, `data-model.md`, `contracts/results-api.openapi.yml`, `quickstart.md` y `checklists/design.md`.
+
+**Estado**: aprobado formalmente por revisión humana el 2026-10-20. La aprobación del documento no autoriza ejecutar sus tareas, instalar dependencias, escribir código, operar Jira/Git/GitHub ni desplegar.
+
+**Organización**: las tareas se agrupan por preparación, fundamentos y las cinco historias. Las pruebas se escriben antes de la implementación correspondiente y conservan claves HU/RF en sus nombres o metadatos.
+
+## Formato: `[ID] [P?] [Story] Descripción`
+
+- **[P]**: puede ejecutarse en paralelo con otras tareas marcadas `[P]` de la misma etapa cuando sus dependencias estén satisfechas.
+- **[US1]…[US5]**: corresponden respectivamente a HU-001…HU-005.
+- Cada descripción contiene rutas exactas y referencias funcionales.
+
+## Phase 1: Setup y puerta contractual
+
+**Propósito**: validar el contrato antes de cualquier implementación y preparar el proyecto reproducible.
+
+**Puerta bloqueante**: T001 debe completarse satisfactoriamente antes de T002 o de cualquier tarea que escriba código. Requiere autorización humana para que `npx` descargue temporalmente la herramienta; un fallo detiene el flujo y deja CHK023 abierto.
+
+- [ ] T001 Ejecutar `npx --yes @redocly/cli@2.53.3 lint --extends spec specs/001-snake-game/contracts/results-api.openapi.yml`, conservar evidencia del código 0 y marcar CHK023 únicamente tras éxito en `specs/001-snake-game/checklists/design.md`
+- [ ] T002 Inicializar Next.js 16, React 19, TypeScript 5.x y Node.js 24 LTS con versiones exactas fijadas en `package.json`, `package-lock.json` y `.nvmrc`
+- [ ] T003 [P] Configurar compilación estricta y App Router en `tsconfig.json`, `next.config.ts` y `src/app/layout.tsx`
+- [ ] T004 [P] Configurar formato y lint reproducibles en `eslint.config.mjs`, `.prettierrc.json` y `.prettierignore`
+- [ ] T005 [P] Configurar Vitest y entornos unitario/integración en `vitest.config.ts` y `tests/setup/vitest.setup.ts`
+- [ ] T006 [P] Configurar Playwright para Chromium, un worker en CI y reportes sin secretos en `playwright.config.ts`
+- [ ] T007 Documentar solo nombres y valores ficticios de `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY`, sin `NEXT_PUBLIC_*`, en `.env.example`
+- [ ] T008 Definir scripts `format:check`, `lint`, `typecheck`, `openapi:lint`, `test:unit`, `test:integration`, `build` y `test:e2e` con Redocly CLI 2.53.3 fijado en `package.json` y `package-lock.json`
+
+**Checkpoint**: contrato OpenAPI validado y herramientas preparadas; todavía no existe funcionalidad del juego.
+
+---
+
+## Phase 2: Fundamentos compartidos
+
+**Propósito**: establecer límites de capas, tipos compartidos, seguridad y determinismo antes de las historias.
+
+**Bloqueo**: ninguna fase de historia comienza hasta completar esta fase.
+
+- [ ] T009 Crear la estructura monolítica modular y reglas de importación entre `src/domain/`, `src/application/`, `src/infrastructure/`, `src/presentation/`, `tests/unit/`, `tests/integration/` y `tests/e2e/`
+- [ ] T010 Definir `GameState`, `Snake`, `Cell`, `PendingResult`, `ResultState` y `SavedResultRef` con todos los invariantes de `data-model.md` en `src/domain/game/model.ts`
+- [ ] T011 [P] Definir puertos inyectables de reloj, UUID y generación de posiciones sin dependencias de React, Next.js o Supabase en `src/application/ports/game-dependencies.ts`
+- [ ] T012 [P] Implementar carga server-only y validación de variables, rechazando valores ausentes sin imprimir secretos, en `src/infrastructure/config/server-env.ts`
+- [ ] T013 [P] Definir lectura JSON limitada a 4096 bytes y respuestas controladas 405, 409, 413, 422 y 503 en `src/infrastructure/http/request-body.ts` y `src/infrastructure/http/error-response.ts`
+- [ ] T014 [P] Crear reloj falso, UUID fijo, generador de posiciones por secuencia y factories de partida sin azar real en `tests/helpers/game-fixtures.ts`
+- [ ] T015 [P] Crear estructura semántica accesible, foco visible y regiones de estado que no dependan solo del color en `src/app/page.tsx` y `src/app/globals.css`
+- [ ] T016 Configurar logging server-only con códigos controlados y redacción de credenciales en `src/infrastructure/observability/server-logger.ts`
+- [ ] T017 Ampliar CI con jobs `openapi`, `format-lint`, `typecheck`, `unit-tests`, `integration-tests`, `build` y `e2e`, sus `needs`, ausencia de `continue-on-error` y ejecución en PR/main en `.github/workflows/ci.yml`
+
+**Checkpoint**: fundamentos compartidos listos y comprobables sin implementar comportamiento de historias.
+
+---
+
+## Phase 3: User Story 1 — Gestionar el ciclo de la partida (Priority: P1) 🎯 MVP
+
+**Objetivo**: preparar, iniciar, pausar, reanudar y reiniciar una partida, incluidos los estados de resultado pendiente y guardado.
+
+**Prueba independiente**: con un reloj falso, `Enter`, `Espacio` y `R` producen únicamente las transiciones admitidas; Playwright observa estados y confirmaciones sin requerir movimiento, alimento o persistencia real.
+
+### Pruebas de HU-001
+
+- [ ] T018 [P] [US1] Escribir pruebas unitarias inicialmente fallidas de `prepared`, `START`, configuración válida y estado visible para RF-001 y RF-002 en `tests/unit/game/state-machine-lifecycle.test.ts`
+- [ ] T019 [P] [US1] Escribir pruebas unitarias inicialmente fallidas de pausa, reanudación, conservación durante 10 segundos y acciones incompatibles para RF-003 y RF-004 en `tests/unit/game/state-machine-pause.test.ts`
+- [ ] T020 [P] [US1] Escribir pruebas unitarias inicialmente fallidas de reinicio desde todos los estados y confirmación Guardar/Descartar/Cancelar para RF-005 y RF-030 en `tests/unit/game/state-machine-restart.test.ts`
+- [ ] T021 [P] [US1] Escribir recorrido E2E inicialmente fallido de `Enter`, `Espacio`, `R`, estados visibles en un máximo de 1 segundo (CE-002) y reinicio preparado con puntuación cero para RF-001 a RF-005 y RF-030 en `tests/e2e/hu-001-game-lifecycle.spec.ts`
+
+### Implementación de HU-001
+
+- [ ] T022 [US1] Implementar comandos, guardas y transiciones `prepared`, `running`, `paused` y `finished` para RF-001 a RF-004 en `src/domain/game/state-machine.ts`
+- [ ] T023 [US1] Implementar reinicio directo y estados `pending`, `saving`, `saveError`, `saved` con confirmación de tres opciones para RF-005 y RF-030 en `src/domain/game/state-machine.ts`
+- [ ] T024 [US1] Implementar temporizador de tick fijo, despacho de comandos y limpieza segura al desmontar en `src/presentation/hooks/use-snake-game.ts`
+- [ ] T025 [P] [US1] Crear controles y estado visible en español para iniciar, pausar y reanudar en `src/presentation/components/game-controls.tsx` y `src/presentation/components/game-status.tsx`
+- [ ] T026 [P] [US1] Crear diálogo accesible Guardar primero/Descartar/Cancelar sin pérdida accidental del pendiente en `src/presentation/components/restart-confirmation.tsx`
+- [ ] T027 [US1] Integrar HU-001 en `src/app/page.tsx` y hacer pasar `tests/unit/game/state-machine-lifecycle.test.ts`, `tests/unit/game/state-machine-pause.test.ts`, `tests/unit/game/state-machine-restart.test.ts` y `tests/e2e/hu-001-game-lifecycle.spec.ts`
+
+**Checkpoint**: HU-001 funciona y se prueba de forma independiente como MVP; no se avanza sin evidencia y aprobación aplicables.
+
+---
+
+## Phase 4: User Story 2 — Controlar la serpiente con el teclado (Priority: P1)
+
+**Objetivo**: aceptar una sola dirección válida por desplazamiento y rechazar entradas incompatibles.
+
+**Prueba independiente**: con una serpiente fixture y ticks manuales, las cuatro flechas actualizan solo la dirección pendiente permitida; no requieren alimento, colisión ni base de datos.
+
+### Pruebas de HU-002
+
+- [ ] T028 [P] [US2] Escribir pruebas unitarias inicialmente fallidas para cuatro flechas, primera dirección válida, rechazo de opuesta sin consumir oportunidad e ignorado por estado/tecla para RF-006 a RF-010 en `tests/unit/game/movement.test.ts`
+- [ ] T029 [P] [US2] Escribir recorrido E2E inicialmente fallido de reconocimiento visual menor o igual a 100 ms y movimiento solo en el tick siguiente para RF-006 a RF-010 en `tests/e2e/hu-002-keyboard-control.spec.ts`
+
+### Implementación de HU-002
+
+- [ ] T030 [US2] Implementar direcciones, oposición y cálculo de siguiente celda como funciones puras en `src/domain/game/movement.ts`
+- [ ] T031 [US2] Incorporar `QUEUE_DIRECTION` con primera entrada válida, oportunidad conservada tras oposición e ignorado posterior en `src/domain/game/state-machine.ts`
+- [ ] T032 [US2] Capturar flechas únicamente durante `running`, impedir desplazamiento de página y limpiar listeners en `src/presentation/hooks/use-snake-game.ts`
+- [ ] T033 [P] [US2] Mostrar reconocimiento visual de la dirección aceptada sin mover anticipadamente la serpiente en `src/presentation/components/game-status.tsx`
+- [ ] T034 [US2] Integrar HU-002 y hacer pasar `tests/unit/game/movement.test.ts` y `tests/e2e/hu-002-keyboard-control.spec.ts`
+
+**Checkpoint**: HU-002 es verificable con ticks y entradas controlados, conservando HU-001.
+
+---
+
+## Phase 5: User Story 3 — Consumir alimentos, crecer y puntuar (Priority: P1)
+
+**Objetivo**: mantener un alimento válido, crecer un segmento y sumar 10 puntos una vez por consumo a velocidad constante.
+
+**Prueba independiente**: una secuencia fija de alimentos permite observar consumo, crecimiento, puntuación, reposición y tablero completo sin persistencia.
+
+### Pruebas de HU-003
+
+- [ ] T035 [P] [US3] Escribir pruebas unitarias inicialmente fallidas de alimento único, celda libre y reposición para RF-011, RF-012 y RF-015 en `tests/unit/game/food.test.ts`
+- [ ] T036 [P] [US3] Escribir pruebas unitarias inicialmente fallidas de consumo único, crecimiento, suma exacta de 10, tablero completo y tick constante de 150 ms para RF-013, RF-014 y RF-029 en `tests/unit/game/scoring.test.ts`
+- [ ] T037 [P] [US3] Escribir recorrido E2E inicialmente fallido con posiciones deterministas para RF-011 a RF-015 y RF-029 en `tests/e2e/hu-003-food-and-score.spec.ts`
+
+### Implementación de HU-003
+
+- [ ] T038 [P] [US3] Implementar suma inmutable de 10 y crecimiento de un segmento exactamente una vez en `src/domain/game/scoring.ts`
+- [ ] T039 [P] [US3] Implementar selección de alimento exclusivamente entre celdas libres mediante el puerto inyectable en `src/domain/game/food.ts`
+- [ ] T040 [US3] Integrar consumo, liberación de cola, crecimiento, reposición y tablero completo en el orden aprobado dentro de `src/domain/game/state-machine.ts`
+- [ ] T041 [US3] Mantener el temporizador efectivo constante en 150 ms sin depender de puntuación, tiempo o consumos en `src/presentation/hooks/use-snake-game.ts`
+- [ ] T042 [US3] Representar serpiente, alimento y puntuación sin depender solo del color y hacer pasar las pruebas HU-003 en `src/presentation/components/game-board.tsx` y `src/presentation/components/game-status.tsx`
+
+**Checkpoint**: HU-003 funciona con generador y reloj controlados, sin ampliar el alcance.
+
+---
+
+## Phase 6: User Story 4 — Finalizar por colisión (Priority: P1)
+
+**Objetivo**: finalizar por pared o cuerpo, aplicar correctamente la excepción de cola liberada y congelar la partida.
+
+**Prueba independiente**: fixtures de tablero fuerzan pared, cuerpo, cola liberada, cola retenida y eventos posteriores sin usar persistencia.
+
+### Pruebas de HU-004
+
+- [ ] T043 [P] [US4] Escribir pruebas unitarias inicialmente fallidas de pared, cuerpo, cola liberada y cola no liberada para RF-016 y RF-017 en `tests/unit/game/collisions.test.ts`
+- [ ] T044 [P] [US4] Escribir pruebas unitarias inicialmente fallidas de inmovilidad, puntuación congelada, causa visible y resultado único frente a eventos posteriores para RF-018 a RF-020 en `tests/unit/game/finished-state.test.ts`
+- [ ] T045 [P] [US4] Escribir recorrido E2E inicialmente fallido de cada causa y pantalla final para RF-016 a RF-020 en `tests/e2e/hu-004-collisions.spec.ts`
+
+### Implementación de HU-004
+
+- [ ] T046 [US4] Implementar detección pura de pared y ocupación resultante tras liberar o conservar la cola en `src/domain/game/collisions.ts`
+- [ ] T047 [US4] Integrar finalización irreversible, `finishReason`, `finishedAt` y creación máxima de un pendiente en `src/domain/game/state-machine.ts`
+- [ ] T048 [P] [US4] Crear pantalla de resultados con causa y puntuación definitiva en español en `src/presentation/components/game-result.tsx`
+- [ ] T049 [US4] Bloquear ticks, direcciones y cambios de puntuación tras finalizar en `src/presentation/hooks/use-snake-game.ts`
+- [ ] T050 [US4] Integrar HU-004 y hacer pasar `tests/unit/game/collisions.test.ts`, `tests/unit/game/finished-state.test.ts` y `tests/e2e/hu-004-collisions.spec.ts`
+
+**Checkpoint**: HU-004 finaliza y congela cada partida con causa verificable.
+
+---
+
+## Phase 7: User Story 5 — Persistir resultados y consultar Top 10 (Priority: P2)
+
+**Objetivo**: validar alias, guardar una vez por partida y consultar un ranking determinista y persistente.
+
+**Prueba independiente**: con Supabase local desechable y datos semilla, guardar y reintentar resultados —incluido cero—, consultar menos de diez y Top 10, verificar empates y simular fallos controlados.
+
+### Pruebas de HU-005
+
+- [ ] T051 [P] [US5] Escribir pruebas unitarias inicialmente fallidas que primero recorten y luego acepten 1–20 letras Unicode, números, espacios, guiones y guiones bajos, permitiendo alias repetidos, para RF-026 y RF-027 en `tests/unit/results/result-schema.test.ts`
+- [ ] T052 [P] [US5] Escribir pruebas unitarias inicialmente fallidas de `PendingResult` con puntuación entera no negativa, inmutable y múltiplo de 10, estados `pending/saving/saveError/saved`, pérdida al recargar y descarte para RF-021 en `tests/unit/results/result-state.test.ts`
+- [ ] T053 [P] [US5] Escribir pruebas unitarias inicialmente fallidas de Guardar primero, fallo conservado y reinicio directo tras `saved` para RF-030 y RF-031 en `tests/unit/results/restart-after-save.test.ts`
+- [ ] T054 [P] [US5] Escribir pruebas de contrato inicialmente fallidas para 200, 201, 405, 409, 413, 422 y 503, cuerpo máximo 4096 bytes y schemas OpenAPI para RF-022, RF-026 a RF-028 y RF-031 en `tests/integration/http/results-contract.test.ts`
+- [ ] T055 [P] [US5] Escribir integración inicialmente fallida de `ORDER BY score DESC, achieved_at ASC, game_id ASC LIMIT 10`, empates y menos de diez resultados para RF-024 y RF-025 en `tests/integration/persistence/ranking.test.ts`
+- [ ] T056 [P] [US5] Escribir integración inicialmente fallida de persistencia entre sesiones e idempotencia created/alreadyRecorded/conflict para RF-022, RF-023 y RF-028 en `tests/integration/persistence/result-repository.test.ts`
+- [ ] T057 [P] [US5] Escribir recorridos E2E inicialmente fallidos de alias, puntuación cero, guardado, reintento, ranking por estados permitidos y recarga para RF-021 a RF-028 y RF-031 en `tests/e2e/hu-005-results-ranking.spec.ts`
+
+### Persistencia, API y aplicación de HU-005
+
+- [ ] T058 [P] [US5] Definir `ResultRepository` con operaciones idempotentes de guardar y Top 10, sin exponer Supabase al dominio, en `src/application/ports/result-repository.ts`
+- [ ] T059 [US5] Crear migración `game_results` con `game_id uuid NOT NULL PRIMARY KEY`, `alias varchar(20) NOT NULL CHECK (char_length(alias) BETWEEN 1 AND 20)`, `score integer NOT NULL CHECK (score >= 0 AND score % 10 = 0)`, `achieved_at timestamptz NOT NULL`, `created_at timestamptz NOT NULL DEFAULT now()`, índice `(score DESC, achieved_at ASC, game_id ASC)` y sin privilegios públicos en `supabase/migrations/202610200001_create_game_results.sql`
+- [ ] T060 [P] [US5] Configurar Supabase local y semilla de al menos 15 resultados con empates, UUID y fechas fijos en `supabase/config.toml` y `supabase/seed.sql`
+- [ ] T061 [P] [US5] Implementar cliente Supabase exclusivamente server-only usando configuración validada en `src/infrastructure/supabase/server-client.ts`
+- [ ] T062 [US5] Implementar normalización y validación cerrada de `gameId` UUID, alias corregible, `score >= 0` y múltiplo de 10, y `achievedAt` UTC en `src/infrastructure/validation/result-schema.ts`
+- [ ] T063 [US5] Implementar Repository con inserción, reintento idéntico, conflicto sin sobrescritura y Top 10 determinista en `src/infrastructure/persistence/supabase-result-repository.ts`
+- [ ] T064 [P] [US5] Implementar casos de uso de guardado y consulta con traducción controlada de fallos en `src/application/use-cases/save-result.ts` y `src/application/use-cases/get-ranking.ts`
+- [ ] T065 [US5] Implementar `POST /api/results` con límite previo de 4096 bytes y respuestas OpenAPI 200/201/405/409/413/422/503 en `src/app/api/results/route.ts`
+- [ ] T066 [US5] Implementar `GET /api/ranking` con respuestas OpenAPI 200/405/503 y máximo de diez filas en `src/app/api/ranking/route.ts`
+- [ ] T067 [P] [US5] Crear formulario de alias y mensajes corregibles que conserven el pendiente hasta guardar, descartar o cerrar/recargar en `src/presentation/components/result-form.tsx`
+- [ ] T068 [P] [US5] Crear ranking accesible desde `prepared` y `finished`, nunca desde `running` o `paused`, en `src/presentation/components/ranking.tsx`
+- [ ] T069 [US5] Integrar guardado, reintentos, estados `saveError/saved`, reinicio y ranking; hacer pasar todas las pruebas HU-005 en `src/presentation/hooks/use-snake-game.ts` y `src/app/page.tsx`
+
+**Checkpoint**: HU-005 es persistente, idempotente y verificable con Supabase local; ninguna operación remota queda autorizada.
+
+---
+
+## Phase 8: Pulido y controles transversales
+
+**Propósito**: verificar requisitos no funcionales, seguridad, documentación, CI y preparación de revisión sin desplegar.
+
+- [ ] T070 [P] Implementar mediciones reproducibles de 100 muestras, calentamiento y p95 para RNF-002 y RNF-003 en `tests/e2e/performance-rnf.spec.ts`
+- [ ] T071 [P] Añadir pruebas de teclado, foco, etiquetas, estados no dependientes solo del color y textos españoles para RNF-001, RNF-004 y RNF-009 en `tests/e2e/accessibility-and-language.spec.ts`
+- [ ] T072 [P] Añadir comprobaciones de ausencia de secretos y mensajes sanitizados para RNF-005 a RNF-007 en `tests/integration/security/secrets-and-errors.test.ts`
+- [ ] T073 Ejecutar en base local desechable y con autorización previa `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run openapi:lint`, `npm run test:unit`, `npm run test:integration`, `npm run build` y `npm run test:e2e`, registrando resultados reales en `specs/001-snake-game/quickstart.md`
+- [ ] T074 Revisar que cada prueba y tarea mantenga las claves de las cinco HU y RF-001 a RF-031, corrigiendo únicamente trazabilidad en `specs/001-snake-game/tasks.md`
+- [ ] T075 [P] Documentar variables Development/Preview/Production, build y límites de despliegue sin valores sensibles ni ejecución remota en `README.md` y `vercel.json`
+- [ ] T076 Validar que los jobs y `needs` reales coincidan con el Plan y que ningún fallo/cancelación/omisión se considere éxito en `.github/workflows/ci.yml`
+- [ ] T077 Registrar evidencias, riesgos y pendientes para revisión humana de implementación sin realizar Jira, commit, push, PR o despliegue en `specs/001-snake-game/tasks.md`
+
+**Checkpoint final**: todos los tests y controles aplicables deben aportar evidencia real; completar Tasks no autoriza Analyze ni Implement sin sus puertas humanas.
+
+---
+
+## Matriz RF → tareas y pruebas
+
+| RF | Implementación principal | Prueba/evidencia principal |
+|---|---|---|
+| RF-001 | T022, T025 | T018, T021, T027 |
+| RF-002 | T022, T024, T025 | T018, T021, T027 |
+| RF-003 | T022, T024, T025 | T019, T021, T027 |
+| RF-004 | T022, T024, T025 | T019, T021, T027 |
+| RF-005 | T023, T026 | T020, T021, T027 |
+| RF-006 | T030, T032 | T028, T029, T034 |
+| RF-007 | T030, T031 | T028, T029, T034 |
+| RF-008 | T030, T031 | T028, T029, T034 |
+| RF-009 | T031, T032 | T028, T029, T034 |
+| RF-010 | T031, T032 | T028, T034 |
+| RF-011 | T039, T040 | T035, T037, T042 |
+| RF-012 | T039, T040 | T035, T037, T042 |
+| RF-013 | T040 | T036, T037, T042 |
+| RF-014 | T038, T040 | T036, T037, T042 |
+| RF-015 | T039, T040 | T035, T037, T042 |
+| RF-016 | T046, T047 | T043, T045, T050 |
+| RF-017 | T046, T047 | T043, T045, T050 |
+| RF-018 | T047, T049 | T044, T045, T050 |
+| RF-019 | T047, T048 | T044, T045, T050 |
+| RF-020 | T047, T049 | T044, T050 |
+| RF-021 | T047, T067, T069 | T052, T057 |
+| RF-022 | T059, T062–T065 | T054, T056, T057 |
+| RF-023 | T063, T066 | T056, T057 |
+| RF-024 | T063, T064, T066, T068 | T055, T057 |
+| RF-025 | T059, T063 | T055, T057 |
+| RF-026 | T062, T065, T067 | T051, T054, T057 |
+| RF-027 | T062, T067, T069 | T051, T054, T057 |
+| RF-028 | T063–T069 | T054–T057 |
+| RF-029 | T040, T041 | T036, T037, T042, T070 |
+| RF-030 | T023, T026, T069 | T020, T053, T057 |
+| RF-031 | T064, T065, T069 | T053, T054, T057 |
+
+---
+
+## Dependencias y orden de ejecución
+
+### Dependencias entre fases
+
+- **Phase 1**: T001 es la primera puerta absoluta; T002–T008 dependen de su éxito.
+- **Phase 2**: depende de Phase 1 y bloquea todas las historias.
+- **HU-001**: depende de Phase 2 y constituye el MVP.
+- **HU-002**: depende de HU-001 para el estado `running`, pero sus reglas direccionales se prueban aisladamente.
+- **HU-003**: depende de HU-002 para aplicar movimiento, pero alimento y puntuación usan fixtures aislados.
+- **HU-004**: depende de HU-002 para el siguiente movimiento; puede desarrollarse en paralelo con HU-003 tras HU-002.
+- **HU-005**: depende de HU-001/HU-004 solo para la integración visual del resultado; persistencia, API y ranking pueden avanzar tras Phase 2 con fixtures.
+- **Phase 8**: depende de las historias incluidas en la entrega y nunca autoriza un despliegue.
+
+### Orden dentro de cada historia
+
+1. Escribir pruebas y comprobar que fallan por la ausencia del comportamiento.
+2. Implementar modelos y reglas de dominio.
+3. Implementar aplicación e infraestructura necesarias.
+4. Integrar presentación o endpoints.
+5. Ejecutar las pruebas de la historia y conservar evidencia.
+
+### Oportunidades de paralelización
+
+- Setup: T003–T007 pueden dividirse después de T002; T008 espera sus decisiones de scripts.
+- Fundamentos: T011–T015 pueden avanzar en archivos distintos después de T009–T010.
+- HU-001: T018–T021 y luego T025–T026 pueden prepararse en paralelo.
+- HU-002: T028–T029 y después T030/T033 pueden ejecutarse en paralelo.
+- HU-003: T035–T037 y después T038–T039 pueden ejecutarse en paralelo.
+- HU-004: T043–T045 y T048 pueden ejecutarse en paralelo respetando la escritura previa de pruebas.
+- HU-005: T051–T057, T058/T060/T061 y T067/T068 ofrecen grupos paralelos con archivos independientes.
+- Transversales: T070–T072 y T075 pueden avanzar en paralelo después de las historias aplicables.
+
+## Ejemplos paralelos por historia
+
+```text
+HU-001: T018 + T019 + T020 + T021; después T025 + T026
+HU-002: T028 + T029; después T030 + T033
+HU-003: T035 + T036 + T037; después T038 + T039
+HU-004: T043 + T044 + T045; después T046 + T048
+HU-005: T051 + T052 + T053 + T054 + T055 + T056 + T057
+```
+
+## Estrategia de implementación
+
+### MVP primero
+
+1. Completar T001 y obtener validación OpenAPI real.
+2. Completar Setup y Fundamentos.
+3. Implementar y validar únicamente HU-001.
+4. Detenerse para evidencia y revisión humana antes de ampliar el incremento.
+
+### Entrega incremental
+
+1. HU-001: ciclo de partida.
+2. HU-002: control direccional.
+3. HU-003 y HU-004: reglas de tablero, potencialmente en paralelo después de HU-002.
+4. HU-005: persistencia y ranking, con su núcleo de datos desacoplado y posterior integración visual.
+5. Controles transversales y revisión final.
+
+## Notas de gobernanza
+
+- Todas las tareas permanecen sin marcar hasta su ejecución y evidencia.
+- Aprobación humana de las 77 tareas registrada el 2026-10-20, sin autorización para ejecutarlas.
+- T001/CHK023 bloquea toda implementación; documentar el comando no equivale a haberlo ejecutado.
+- Los comandos destructivos de Supabase requieren autorización humana y una base local desechable confirmada.
+- Cada historia debe desarrollarse en su rama GitHub Flow independiente desde `main` actualizado y con clave Jira real, únicamente cuando exista autorización específica para Jira y Git.
+- No se permiten commits, pushes, PR, merges, Jira, despliegues o cambios de fase por inferencia de este documento.
