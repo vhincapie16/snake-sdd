@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 jobs:
-  integrity:
+  repository-integrity:
     name: repository-integrity
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -148,3 +148,125 @@ jobs:
           fi
 
           echo "Changed-line formatting validation passed."
+
+  openapi:
+    name: openapi
+    needs: repository-integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+      - run: npm ci
+      - run: npm run openapi:lint
+
+  format-lint:
+    name: format-lint
+    needs: repository-integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+
+  typecheck:
+    name: typecheck
+    needs: repository-integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+
+  unit-tests:
+    name: unit-tests
+    needs: repository-integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+      - run: npm ci
+      - run: npm run test:unit
+
+  integration-tests:
+    name: integration-tests
+    needs: repository-integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+      - run: npm ci
+      - run: npm run test:integration
+
+  build:
+    name: build
+    needs: [openapi, format-lint, typecheck, unit-tests, integration-tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Conservar build para E2E
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: .next
+          include-hidden-files: true
+          retention-days: 1
+
+  e2e:
+    name: e2e
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.19.0
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Recuperar build validado
+        uses: actions/download-artifact@v4
+        with:
+          name: next-build
+          path: .next
+      - run: npm run test:e2e
+        env:
+          CI: "true"
+      - name: Publicar reporte E2E solo ante fallo
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
+          if-no-files-found: ignore
