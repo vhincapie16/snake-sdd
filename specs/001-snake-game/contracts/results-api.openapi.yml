@@ -1,0 +1,332 @@
+openapi: 3.1.0
+info:
+  title: Contrato de resultados y ranking de Snake SDD
+  version: 0.1.0
+  description: >-
+    Artefacto técnico del Plan aprobado formalmente por revisión humana el
+    2026-10-20. Expone únicamente el guardado
+    idempotente de resultados y la consulta del Top 10 global sin autenticación.
+servers:
+  - url: /api
+paths:
+  /results:
+    post:
+      operationId: saveResult
+      summary: Guardar una única vez el resultado de una partida finalizada
+      x-traceability:
+        - HU-005
+        - RF-021
+        - RF-022
+        - RF-026
+        - RF-027
+        - RF-028
+        - RF-031
+      requestBody:
+        required: true
+        description: >-
+          Cuerpo JSON de hasta 4096 bytes. El servidor rechaza con 413 cualquier
+          cuerpo que supere el límite antes de normalizar o validar sus campos.
+        x-max-body-bytes: 4096
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveResultRequest'
+      responses:
+        '201':
+          description: Resultado creado.
+          x-traceability: [HU-005, RF-021, RF-022]
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaveResultResponse'
+        '200':
+          description: Reintento idempotente; ya existía el mismo resultado.
+          x-traceability: [HU-005, RF-028]
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaveResultResponse'
+        '409':
+          description: >-
+            El identificador ya existe con datos diferentes; devuelve
+            RESULT_CONFLICT y retryable=false.
+          x-traceability: [HU-005, RF-028]
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictErrorResponse'
+        '413':
+          description: >-
+            El cuerpo supera 4096 bytes; devuelve PAYLOAD_TOO_LARGE y
+            retryable=false hasta reducir la carga.
+          x-traceability: [HU-005, RF-028]
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayloadTooLargeErrorResponse'
+        '422':
+          description: >-
+            Carga inválida; devuelve VALIDATION_ERROR y retryable=false. El
+            resultado no fue guardado.
+          x-traceability: [HU-005, RF-026, RF-027]
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '405':
+          description: >-
+            Método HTTP no admitido; devuelve METHOD_NOT_ALLOWED y
+            retryable=false.
+          x-traceability: [HU-005, RF-028]
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MethodNotAllowedErrorResponse'
+        '503':
+          description: >-
+            Persistencia temporalmente no disponible; devuelve
+            PERSISTENCE_UNAVAILABLE y retryable=true.
+          x-traceability: [HU-005, RF-028, RF-031]
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersistenceUnavailableErrorResponse'
+  /ranking:
+    get:
+      operationId: getRanking
+      summary: Consultar hasta diez mejores resultados globales
+      x-traceability:
+        - HU-005
+        - RF-023
+        - RF-024
+        - RF-025
+        - RF-028
+      responses:
+        '200':
+          description: Ranking ordenado; puede estar vacío o contener menos de diez posiciones.
+          x-traceability: [HU-005, RF-023, RF-024, RF-025]
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RankingResponse'
+        '405':
+          description: >-
+            Método HTTP no admitido; devuelve METHOD_NOT_ALLOWED y
+            retryable=false.
+          x-traceability: [HU-005, RF-028]
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MethodNotAllowedErrorResponse'
+        '503':
+          description: >-
+            Persistencia temporalmente no disponible; devuelve
+            PERSISTENCE_UNAVAILABLE y retryable=true, sin datos inventados.
+          x-traceability: [HU-005, RF-028]
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersistenceUnavailableErrorResponse'
+components:
+  schemas:
+    SaveResultRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - gameId
+        - alias
+        - score
+        - achievedAt
+      properties:
+        gameId:
+          type: string
+          format: uuid
+        alias:
+          type: string
+          description: >-
+            Entrada sin normalizar. El servidor elimina primero los espacios
+            iniciales y finales y valida después que el valor normalizado tenga
+            entre 1 y 20 caracteres formados únicamente por letras Unicode,
+            números, espacios, guiones y guiones bajos. Este esquema no limita
+            la longitud previa al recorte; el límite general del cuerpo protege
+            la operación frente a cargas excesivas.
+        score:
+          type: integer
+          minimum: 0
+          multipleOf: 10
+        achievedAt:
+          type: string
+          format: date-time
+          description: Instante UTC capturado cuando finalizó la partida.
+    SaveResultResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+        - result
+      properties:
+        status:
+          type: string
+          enum:
+            - created
+            - alreadyRecorded
+        result:
+          $ref: '#/components/schemas/Result'
+    Result:
+      type: object
+      additionalProperties: false
+      required:
+        - gameId
+        - alias
+        - score
+        - achievedAt
+      properties:
+        gameId:
+          type: string
+          format: uuid
+        alias:
+          type: string
+          minLength: 1
+          maxLength: 20
+        score:
+          type: integer
+          minimum: 0
+          multipleOf: 10
+        achievedAt:
+          type: string
+          format: date-time
+    RankingEntry:
+      type: object
+      additionalProperties: false
+      required:
+        - position
+        - gameId
+        - alias
+        - score
+        - achievedAt
+      properties:
+        position:
+          type: integer
+          minimum: 1
+          maximum: 10
+        gameId:
+          type: string
+          format: uuid
+        alias:
+          type: string
+          minLength: 1
+          maxLength: 20
+        score:
+          type: integer
+          minimum: 0
+          multipleOf: 10
+        achievedAt:
+          type: string
+          format: date-time
+    RankingResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - entries
+      properties:
+        entries:
+          type: array
+          maxItems: 10
+          description: >-
+            Orden descendente por puntuación, ascendente por achievedAt y
+            ascendente por gameId.
+          items:
+            $ref: '#/components/schemas/RankingEntry'
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - message
+        - retryable
+      properties:
+        code:
+          type: string
+          enum:
+            - RESULT_CONFLICT
+            - PAYLOAD_TOO_LARGE
+            - METHOD_NOT_ALLOWED
+            - PERSISTENCE_UNAVAILABLE
+        message:
+          type: string
+          description: Mensaje controlado en español sin detalles sensibles.
+        retryable:
+          type: boolean
+    ConflictErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+        - type: object
+          properties:
+            code:
+              const: RESULT_CONFLICT
+            retryable:
+              const: false
+    PayloadTooLargeErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+        - type: object
+          properties:
+            code:
+              const: PAYLOAD_TOO_LARGE
+            retryable:
+              const: false
+    MethodNotAllowedErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+        - type: object
+          properties:
+            code:
+              const: METHOD_NOT_ALLOWED
+            retryable:
+              const: false
+    PersistenceUnavailableErrorResponse:
+      allOf:
+        - $ref: '#/components/schemas/ErrorResponse'
+        - type: object
+          properties:
+            code:
+              const: PERSISTENCE_UNAVAILABLE
+            retryable:
+              const: true
+    ValidationIssue:
+      type: object
+      additionalProperties: false
+      required:
+        - field
+        - code
+      properties:
+        field:
+          type: string
+          enum:
+            - gameId
+            - alias
+            - score
+            - achievedAt
+        code:
+          type: string
+    ValidationErrorResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - message
+        - retryable
+        - issues
+      properties:
+        code:
+          const: VALIDATION_ERROR
+        message:
+          type: string
+          description: Mensaje controlado en español sin detalles sensibles.
+        retryable:
+          const: false
+        issues:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ValidationIssue'
