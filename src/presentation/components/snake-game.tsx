@@ -15,11 +15,12 @@ export function SnakeGame({
   return (
     <main className="app-shell">
       <article className="game-card">
-        <p className="eyebrow">Incremento HU-001 · KAN-2</p>
+        <p className="eyebrow">Incremento HU-002 · KAN-1</p>
         <h1>Snake SDD</h1>
         <p>
-          Controla el ciclo de la partida con teclado o botones. El movimiento y
-          la persistencia se incorporarán en incrementos posteriores aprobados.
+          Controla el ciclo de la partida y dirige la serpiente con el teclado.
+          El alimento, las colisiones y la persistencia se incorporarán en
+          incrementos posteriores aprobados.
         </p>
 
         <GameStatus state={game.state} />
@@ -32,7 +33,8 @@ export function SnakeGame({
 
         <p className="help">
           Teclas disponibles: <kbd>Enter</kbd> para iniciar, <kbd>Espacio</kbd>{" "}
-          para pausar o reanudar y <kbd>R</kbd> para reiniciar.
+          para pausar o reanudar, <kbd>R</kbd> para reiniciar y las cuatro
+          flechas para dirigir la serpiente durante la partida.
         </p>
 
         {saveUnavailable ? (

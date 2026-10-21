@@ -2,9 +2,11 @@ import {
   areCellsEqual,
   isCellInsideBoard,
   type Cell,
+  type Direction,
   type GameState,
   type SavedResultRef,
 } from "@/domain/game/model";
+import { isOppositeDirection, nextCell } from "@/domain/game/movement";
 
 export interface GameTransitionDependencies {
   readonly clock: { now(): Date };
@@ -22,6 +24,7 @@ export type GameCommand =
   | { readonly type: "CANCEL_RESTART" }
   | { readonly type: "SAVE_SUCCEEDED"; readonly result: SavedResultRef }
   | { readonly type: "SAVE_FAILED"; readonly errorCode: string }
+  | { readonly type: "QUEUE_DIRECTION"; readonly direction: Direction }
   | { readonly type: "TICK" };
 
 const INITIAL_SEGMENTS = [
@@ -144,8 +147,29 @@ export function transitionGame(
           errorCode: command.errorCode,
         },
       };
+    case "QUEUE_DIRECTION":
+      if (
+        state.status !== "running" ||
+        state.pendingDirection !== null ||
+        isOppositeDirection(command.direction, state.effectiveDirection)
+      ) {
+        return state;
+      }
+      return { ...state, pendingDirection: command.direction };
     case "TICK":
-      // El desplazamiento se incorpora en HU-002; el ciclo mantiene un tick único y estable.
-      return state;
+      if (state.status !== "running") return state;
+      const direction = state.pendingDirection ?? state.effectiveDirection;
+      const [head, ...remainingSegments] = state.snake.segments;
+      const movedSegments = [
+        nextCell(head, direction),
+        head,
+        ...remainingSegments.slice(0, -1),
+      ] as const;
+      return {
+        ...state,
+        snake: { segments: movedSegments },
+        effectiveDirection: direction,
+        pendingDirection: null,
+      };
   }
 }
