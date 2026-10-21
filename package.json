@@ -19,10 +19,12 @@
     "openapi:lint": "redocly lint --extends spec specs/001-snake-game/contracts/results-api.openapi.yml",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
+    "test:persistence": "node --env-file=.env.local node_modules/vitest/vitest.mjs run tests/live",
     "build": "next build",
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.118.0",
     "next": "16.4.2",
     "react": "19.3.1",
     "react-dom": "19.3.1",
@@ -37,6 +39,7 @@
     "eslint": "9.39.5",
     "eslint-config-next": "16.4.2",
     "prettier": "3.9.10",
+    "supabase": "2.121.0",
     "typescript": "5.9.3",
     "vite": "8.3.4",
     "vitest": "5.0.5"
