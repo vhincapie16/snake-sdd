@@ -28,9 +28,6 @@ export function GameStatus({ state }: Readonly<{ state: GameState }>) {
       <span hidden data-testid="snake-length">
         {state.snake.segments.length}
       </span>
-      {state.finishReason === "boardCompleted" ? (
-        <p>Tablero completado</p>
-      ) : null}
       <div className="status-item">
         <span className="status-label">Ritmo</span>
         <strong>150 ms (constante)</strong>

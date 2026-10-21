@@ -4,6 +4,7 @@ import type { GameState } from "@/domain/game/model";
 import { GameControls } from "@/presentation/components/game-controls";
 import { GameStatus } from "@/presentation/components/game-status";
 import { GameBoard } from "@/presentation/components/game-board";
+import { GameResult } from "@/presentation/components/game-result";
 import { RestartConfirmation } from "@/presentation/components/restart-confirmation";
 import { useSnakeGame } from "@/presentation/hooks/use-snake-game";
 
@@ -16,16 +17,16 @@ export function SnakeGame({
   return (
     <main className="app-shell">
       <article className="game-card">
-        <p className="eyebrow">Incremento HU-003 · KAN-3</p>
+        <p className="eyebrow">Incremento HU-004 · KAN-4</p>
         <h1>Snake SDD</h1>
         <p>
           Consume alimentos para crecer y sumar 10 puntos por alimento, a ritmo
-          constante. Las colisiones y la persistencia se incorporarán en
-          incrementos posteriores aprobados.
+          constante. Chocar con una pared o con el cuerpo termina la partida.
         </p>
 
         <GameStatus state={game.state} />
         <GameBoard state={game.state} />
+        <GameResult state={game.state} />
         <GameControls
           status={game.state.status}
           onStart={game.start}

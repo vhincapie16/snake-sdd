@@ -139,17 +139,17 @@ description: "Tareas propuestas para implementar Snake SDD"
 
 ### Pruebas de HU-004
 
-- [ ] T043 [P] [US4] Escribir pruebas unitarias inicialmente fallidas de pared, cuerpo, cola liberada y cola no liberada para RF-016 y RF-017 en `tests/unit/game/collisions.test.ts`
-- [ ] T044 [P] [US4] Escribir pruebas unitarias inicialmente fallidas de inmovilidad, puntuación congelada, causa visible y resultado único frente a eventos posteriores para RF-018 a RF-020 en `tests/unit/game/finished-state.test.ts`
-- [ ] T045 [P] [US4] Escribir recorrido E2E inicialmente fallido de cada causa y pantalla final para RF-016 a RF-020 en `tests/e2e/hu-004-collisions.spec.ts`
+- [x] T043 [P] [US4] Escribir pruebas unitarias inicialmente fallidas de pared, cuerpo, cola liberada y cola no liberada para RF-016 y RF-017 en `tests/unit/game/collisions.test.ts`
+- [x] T044 [P] [US4] Escribir pruebas unitarias inicialmente fallidas de inmovilidad, puntuación congelada, causa visible y resultado único frente a eventos posteriores para RF-018 a RF-020 en `tests/unit/game/finished-state.test.ts`
+- [x] T045 [P] [US4] Escribir recorrido E2E inicialmente fallido de cada causa y pantalla final para RF-016 a RF-020 en `tests/e2e/hu-004-collisions.spec.ts`
 
 ### Implementación de HU-004
 
-- [ ] T046 [US4] Implementar detección pura de pared y ocupación resultante tras liberar o conservar la cola en `src/domain/game/collisions.ts`
-- [ ] T047 [US4] Integrar finalización irreversible, `finishReason`, `finishedAt` y creación máxima de un pendiente en `src/domain/game/state-machine.ts`
-- [ ] T048 [P] [US4] Crear pantalla de resultados con causa y puntuación definitiva en español en `src/presentation/components/game-result.tsx`
-- [ ] T049 [US4] Bloquear ticks, direcciones y cambios de puntuación tras finalizar en `src/presentation/hooks/use-snake-game.ts`
-- [ ] T050 [US4] Integrar HU-004 y hacer pasar `tests/unit/game/collisions.test.ts`, `tests/unit/game/finished-state.test.ts` y `tests/e2e/hu-004-collisions.spec.ts`
+- [x] T046 [US4] Implementar detección pura de pared y ocupación resultante tras liberar o conservar la cola en `src/domain/game/collisions.ts`
+- [x] T047 [US4] Integrar finalización irreversible, `finishReason`, `finishedAt` y creación máxima de un pendiente en `src/domain/game/state-machine.ts`
+- [x] T048 [P] [US4] Crear pantalla de resultados con causa y puntuación definitiva en español en `src/presentation/components/game-result.tsx`
+- [x] T049 [US4] Bloquear ticks, direcciones y cambios de puntuación tras finalizar en `src/presentation/hooks/use-snake-game.ts`
+- [x] T050 [US4] Integrar HU-004 y hacer pasar `tests/unit/game/collisions.test.ts`, `tests/unit/game/finished-state.test.ts` y `tests/e2e/hu-004-collisions.spec.ts`
 
 **Checkpoint**: HU-004 finaliza y congela cada partida con causa verificable.
 
@@ -358,3 +358,13 @@ HU-005: T051 + T052 + T053 + T054 + T055 + T056 + T057
 - Límite actual: todavía no se detectan choques contra pared o cuerpo, ni existe transición a «Partida terminada» por choque; corresponde a HU-004 (T043–T049). HU-003 conserva exclusivamente el final válido por tablero completado (RN-010).
 - Comprobación manual: ejecutar `npm run dev` y abrir el puerto que anuncie Next.js; al cargar pulsar Enter sin seleccionar nada. Probar flechas, Pausar/Reanudar y Espacio. Reiniciar por botón o R debe mostrar Preparada y detener el movimiento; pulsar Enter de nuevo sin cambiar el foco debe iniciar. Solo deben verse Estado, Puntuación y Ritmo en el panel. No usar choques como condición de finalización en este incremento.
 - Evidencia de la corrección: la regresión falló primero en Enter con foco en Reiniciar y después detectó el error UUID en la IP local; ambos recorridos pasan tras corregirlos. Verificación final con dependencias existentes y copia aislada en LF: formato, lint, tipos, OpenAPI, build, 42 unitarias, 10 de integración, 13 E2E de producción y 2 E2E con `next dev`, sin reintentos: códigos 0. También se verificó el navegador contra el servidor manual en localhost, loopback y la IP del propio equipo. El primer control de formato de la copia detectó CRLF de la exportación; se corrigió únicamente esa exportación, sin reformatear el repositorio ni tocar `next-env.d.ts` local.
+
+## Registro de ejecución autorizado — HU-004 / KAN-4
+
+- Propuesta autorizada expresamente en este chat el 2026-10-21 para HU-004, commit, push y PR Draft. Se verificó que el PR #10 estaba integrado; rama `feature/KAN-4-game-collisions` creada desde `origin/main` actualizado (`1ec2ea7`) en un worktree nuevo. Los otros worktrees y sus cambios locales permanecen intactos.
+- T043–T045: pruebas escritas antes del código; fallo inicial por ausencia de `collisions.ts`, siete casos de estado terminal fallidos y tres E2E fallidos por ausencia de colisiones, resultados y fixtures. Evidencia conservada en las salidas del chat. Después pasan 17 unitarias específicas y los tres recorridos E2E nuevos.
+- T046–T048: detección pura de las cuatro paredes y del cuerpo tras excluir la cola solo cuando se libera. La colisión se resuelve antes de crecimiento, puntos o reposición; conserva la última posición válida y la puntuación, fija causa y fecha y crea un único pendiente. La misma finalización conserva el caso de tablero completado de HU-003. Resultado visible con «Partida terminada», causa y puntuación definitiva; ranking deshabilitado, sin implementar HU-005.
+- T049: se conservan sin duplicar las guardas existentes del hook (temporizador solo en `running` y flechas solo en `running`) y del dominio. Se verifican diez segundos sin movimiento ni cambios de puntos, flechas posteriores ignoradas y resultado/fecha únicos ante eventos repetidos.
+- T050: formato, lint, TypeScript, OpenAPI, build, 59 unitarias, 10 de integración, 16 E2E de producción y 2 E2E de desarrollo: códigos 0, con un worker y sin reintentos E2E. Se conservan las pruebas anteriores, el reloj corregido del PR #9, controles/foco del PR #10, comida, crecimiento y tick fijo de 150 ms.
+- Comprobación manual: Enter inicia; chocar contra pared o cuerpo muestra la causa y congela la puntuación y la serpiente. R/Reiniciar solicita confirmación si queda resultado pendiente; Cancelar lo conserva y Descartar crea una partida Preparada e inmóvil. Enter inicia la nueva partida. No se añaden persistencia ni ranking funcional.
+- T051–T077 permanecen pendientes. Sin modificaciones de Jira, especificación, constitución, Spec Kit, Skills, hooks ni CI. La evidencia remota se registra en el PR de KAN-4; su integración requiere revisión y aceptación humana, sin merge automático.

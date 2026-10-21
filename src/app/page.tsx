@@ -22,11 +22,59 @@ function createE2eFixture(fixture: string | undefined): GameState | undefined {
     fixture !== "pending-result" &&
     fixture !== "saved-result" &&
     fixture !== "food-and-score" &&
-    fixture !== "almost-full-board"
+    fixture !== "almost-full-board" &&
+    fixture !== "wall-collision" &&
+    fixture !== "self-collision" &&
+    fixture !== "tail-release"
   )
     return undefined;
 
   const state = createInitialGame(createServerDependencies());
+  if (fixture === "wall-collision") {
+    return {
+      ...state,
+      score: 30,
+      snake: {
+        segments: [
+          { x: 19, y: 10 },
+          { x: 18, y: 10 },
+          { x: 17, y: 10 },
+        ],
+      },
+    };
+  }
+  if (fixture === "self-collision") {
+    return {
+      ...state,
+      score: 30,
+      effectiveDirection: "up",
+      snake: {
+        segments: [
+          { x: 2, y: 2 },
+          { x: 2, y: 3 },
+          { x: 3, y: 3 },
+          { x: 3, y: 2 },
+          { x: 3, y: 1 },
+          { x: 2, y: 1 },
+        ],
+      },
+    };
+  }
+  if (fixture === "tail-release") {
+    return {
+      ...state,
+      score: 30,
+      effectiveDirection: "left",
+      snake: {
+        segments: [
+          { x: 1, y: 1 },
+          { x: 1, y: 2 },
+          { x: 0, y: 2 },
+          { x: 0, y: 1 },
+        ],
+      },
+    };
+  }
   if (fixture === "food-and-score") return { ...state, food: { x: 11, y: 10 } };
   if (fixture === "almost-full-board") {
     const path: Cell[] = Array.from(
