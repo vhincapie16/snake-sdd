@@ -1,0 +1,150 @@
+name: Repository integrity
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  integrity:
+    name: repository-integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate required project files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          required_files=(
+            "AGENTS.md"
+            ".specify/.gitignore"
+            ".specify/init-options.json"
+            ".specify/integration.json"
+            ".specify/integrations/codex.manifest.json"
+            ".specify/integrations/speckit.manifest.json"
+            ".specify/memory/.constitution-template.json"
+            ".specify/memory/constitution.md"
+            ".specify/scripts/powershell/check-prerequisites.ps1"
+            ".specify/scripts/powershell/common.ps1"
+            ".specify/scripts/powershell/create-new-feature.ps1"
+            ".specify/scripts/powershell/resolve-template.ps1"
+            ".specify/scripts/powershell/setup-plan.ps1"
+            ".specify/scripts/powershell/setup-tasks.ps1"
+            ".specify/templates/checklist-template.md"
+            ".specify/templates/constitution-template.md"
+            ".specify/templates/plan-template.md"
+            ".specify/templates/spec-template.md"
+            ".specify/templates/tasks-template.md"
+            ".specify/workflows/speckit/workflow.yml"
+            ".specify/workflows/workflow-registry.json"
+            ".agents/skills/speckit-analyze/SKILL.md"
+            ".agents/skills/speckit-checklist/SKILL.md"
+            ".agents/skills/speckit-clarify/SKILL.md"
+            ".agents/skills/speckit-constitution/SKILL.md"
+            ".agents/skills/speckit-converge/SKILL.md"
+            ".agents/skills/speckit-implement/SKILL.md"
+            ".agents/skills/speckit-plan/SKILL.md"
+            ".agents/skills/speckit-specify/SKILL.md"
+            ".agents/skills/speckit-tasks/SKILL.md"
+            ".agents/skills/speckit-taskstoissues/SKILL.md"
+          )
+
+          validation_failed=0
+
+          for required_file in "${required_files[@]}"; do
+            if [[ ! -s "$required_file" ]]; then
+              echo "::error file=$required_file::Required project file is missing or empty: $required_file"
+              validation_failed=1
+            else
+              echo "OK: $required_file"
+            fi
+          done
+
+          if (( validation_failed != 0 )); then
+            echo "Repository structure validation failed."
+            exit 1
+          fi
+
+          echo "Repository structure validation passed."
+
+      - name: Validate ratified constitution
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          constitution_file=".specify/memory/constitution.md"
+          expected_ratification="**Versión**: 1.1.0 | **Estado de aprobación**: Ratificada |"
+
+          if ! grep -Fq "$expected_ratification" "$constitution_file"; then
+            echo "::error file=$constitution_file::The constitution is not marked as ratified version 1.1.0."
+            exit 1
+          fi
+
+          echo "Ratified constitution version 1.1.0 confirmed."
+
+      - name: Check formatting in changed lines
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PULL_REQUEST_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_BASE_SHA: ${{ github.event.before }}
+          CURRENT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            base_sha="$PULL_REQUEST_BASE_SHA"
+            head_sha="$PULL_REQUEST_HEAD_SHA"
+            comparison_name="pull request base and head"
+          else
+            base_sha="$PUSH_BASE_SHA"
+            head_sha="$CURRENT_SHA"
+            comparison_name="previous and current main revisions"
+
+            if [[ "$base_sha" =~ ^0+$ ]]; then
+              base_sha="$(git hash-object -t tree /dev/null)"
+              comparison_name="empty tree and initial main revision"
+            fi
+          fi
+
+          if [[ -z "$base_sha" || -z "$head_sha" ]]; then
+            echo "::error::Unable to determine both revisions for the $comparison_name comparison."
+            exit 1
+          fi
+
+          if ! git cat-file -e "$base_sha"; then
+            echo "::error::Comparison base $base_sha is not available in the checkout."
+            exit 1
+          fi
+
+          if ! git cat-file -e "${head_sha}^{commit}"; then
+            echo "::error::Comparison head $head_sha is not available in the checkout."
+            exit 1
+          fi
+
+          echo "Checking formatting between $base_sha and $head_sha ($comparison_name)."
+
+          if ! git diff --check "$base_sha" "$head_sha"; then
+            echo "::error::Formatting errors were found in changed lines."
+            exit 1
+          fi
+
+          echo "Changed-line formatting validation passed."
