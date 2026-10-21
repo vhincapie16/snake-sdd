@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useReducer } from "react";
 import type { GameDependencies } from "@/application/ports/game-dependencies";
 import {
   TICK_INTERVAL_MS,
-  type Cell,
   type Direction,
   type GameState,
   type PendingResult,
@@ -15,6 +14,7 @@ import {
   transitionGame,
   type GameCommand,
 } from "@/domain/game/state-machine";
+import { listFreeCells } from "@/domain/game/food";
 
 export type SaveResult = (result: PendingResult) => Promise<SavedResultRef>;
 
@@ -22,8 +22,6 @@ export interface UseSnakeGameOptions {
   readonly initialState?: GameState;
   readonly saveResult?: SaveResult;
 }
-
-const initialFood: Cell = { x: 15, y: 10 };
 
 const DIRECTION_BY_KEY: Readonly<Partial<Record<string, Direction>>> = {
   ArrowUp: "up",
@@ -36,7 +34,14 @@ function createBrowserDependencies(): GameDependencies {
   return {
     clock: { now: () => new Date() },
     uuid: { create: () => crypto.randomUUID() },
-    positions: { nextAvailable: () => initialFood },
+    positions: {
+      nextAvailable: (occupied) => {
+        const free = listFreeCells(occupied);
+        const food = free[Math.floor(Math.random() * free.length)];
+        if (!food) throw new Error("No quedan celdas libres para alimento.");
+        return food;
+      },
+    },
   };
 }
 
