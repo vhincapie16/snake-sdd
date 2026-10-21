@@ -25,14 +25,14 @@ description: "Tareas propuestas para implementar Snake SDD"
 
 **Puerta bloqueante**: T001 debe completarse satisfactoriamente antes de T002 o de cualquier tarea que escriba código. Requiere autorización humana para que `npx` descargue temporalmente la herramienta; un fallo detiene el flujo y deja CHK023 abierto.
 
-- [ ] T001 Ejecutar `npx --yes @redocly/cli@2.53.3 lint --extends spec specs/001-snake-game/contracts/results-api.openapi.yml`, conservar evidencia del código 0 y marcar CHK023 únicamente tras éxito en `specs/001-snake-game/checklists/design.md`
-- [ ] T002 Inicializar Next.js 16, React 19, TypeScript 5.x y Node.js 24 LTS con versiones exactas fijadas en `package.json`, `package-lock.json` y `.nvmrc`
-- [ ] T003 [P] Configurar compilación estricta y App Router en `tsconfig.json`, `next.config.ts` y `src/app/layout.tsx`
-- [ ] T004 [P] Configurar formato y lint reproducibles en `eslint.config.mjs`, `.prettierrc.json` y `.prettierignore`
-- [ ] T005 [P] Configurar Vitest y entornos unitario/integración en `vitest.config.ts` y `tests/setup/vitest.setup.ts`
-- [ ] T006 [P] Configurar Playwright para Chromium, un worker en CI y reportes sin secretos en `playwright.config.ts`
-- [ ] T007 Documentar solo nombres y valores ficticios de `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY`, sin `NEXT_PUBLIC_*`, en `.env.example`
-- [ ] T008 Definir scripts `format:check`, `lint`, `typecheck`, `openapi:lint`, `test:unit`, `test:integration`, `build` y `test:e2e` con Redocly CLI 2.53.3 fijado en `package.json` y `package-lock.json`
+- [x] T001 Ejecutar `npx --yes @redocly/cli@2.53.3 lint --extends spec specs/001-snake-game/contracts/results-api.openapi.yml`, conservar evidencia del código 0 y marcar CHK023 únicamente tras éxito en `specs/001-snake-game/checklists/design.md`
+- [x] T002 Inicializar Next.js 16, React 19, TypeScript 5.x y Node.js 24 LTS con versiones exactas fijadas en `package.json`, `package-lock.json` y `.nvmrc`
+- [x] T003 [P] Configurar compilación estricta y App Router en `tsconfig.json`, `next.config.ts` y `src/app/layout.tsx`
+- [x] T004 [P] Configurar formato y lint reproducibles en `eslint.config.mjs`, `.prettierrc.json` y `.prettierignore`
+- [x] T005 [P] Configurar Vitest y entornos unitario/integración en `vitest.config.ts` y `tests/setup/vitest.setup.ts`
+- [x] T006 [P] Configurar Playwright para Chromium, un worker en CI y reportes sin secretos en `playwright.config.ts`
+- [x] T007 Documentar solo nombres y valores ficticios de `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY`, sin `NEXT_PUBLIC_*`, en `.env.example`
+- [x] T008 Definir scripts `format:check`, `lint`, `typecheck`, `openapi:lint`, `test:unit`, `test:integration`, `build` y `test:e2e` con Redocly CLI 2.53.3 fijado en `package.json` y `package-lock.json`
 
 **Checkpoint**: contrato OpenAPI validado y herramientas preparadas; todavía no existe funcionalidad del juego.
 
@@ -44,15 +44,15 @@ description: "Tareas propuestas para implementar Snake SDD"
 
 **Bloqueo**: ninguna fase de historia comienza hasta completar esta fase.
 
-- [ ] T009 Crear la estructura monolítica modular y reglas de importación entre `src/domain/`, `src/application/`, `src/infrastructure/`, `src/presentation/`, `tests/unit/`, `tests/integration/` y `tests/e2e/`
-- [ ] T010 Definir `GameState`, `Snake`, `Cell`, `PendingResult`, `ResultState` y `SavedResultRef` con todos los invariantes de `data-model.md` en `src/domain/game/model.ts`
-- [ ] T011 [P] Definir puertos inyectables de reloj, UUID y generación de posiciones sin dependencias de React, Next.js o Supabase en `src/application/ports/game-dependencies.ts`
-- [ ] T012 [P] Implementar carga server-only y validación de variables, rechazando valores ausentes sin imprimir secretos, en `src/infrastructure/config/server-env.ts`
-- [ ] T013 [P] Definir lectura JSON limitada a 4096 bytes y respuestas controladas 405, 409, 413, 422 y 503 en `src/infrastructure/http/request-body.ts` y `src/infrastructure/http/error-response.ts`
-- [ ] T014 [P] Crear reloj falso, UUID fijo, generador de posiciones por secuencia y factories de partida sin azar real en `tests/helpers/game-fixtures.ts`
-- [ ] T015 [P] Crear estructura semántica accesible, foco visible y regiones de estado que no dependan solo del color en `src/app/page.tsx` y `src/app/globals.css`
-- [ ] T016 Configurar logging server-only con códigos controlados y redacción de credenciales en `src/infrastructure/observability/server-logger.ts`
-- [ ] T017 Ampliar CI con jobs `openapi`, `format-lint`, `typecheck`, `unit-tests`, `integration-tests`, `build` y `e2e`, sus `needs`, ausencia de `continue-on-error` y ejecución en PR/main en `.github/workflows/ci.yml`
+- [x] T009 Crear la estructura monolítica modular y reglas de importación entre `src/domain/`, `src/application/`, `src/infrastructure/`, `src/presentation/`, `tests/unit/`, `tests/integration/` y `tests/e2e/`
+- [x] T010 Definir `GameState`, `Snake`, `Cell`, `PendingResult`, `ResultState` y `SavedResultRef` con todos los invariantes de `data-model.md` en `src/domain/game/model.ts`
+- [x] T011 [P] Definir puertos inyectables de reloj, UUID y generación de posiciones sin dependencias de React, Next.js o Supabase en `src/application/ports/game-dependencies.ts`
+- [x] T012 [P] Implementar carga server-only y validación de variables, rechazando valores ausentes sin imprimir secretos, en `src/infrastructure/config/server-env.ts`
+- [x] T013 [P] Definir lectura JSON limitada a 4096 bytes y respuestas controladas 405, 409, 413, 422 y 503 en `src/infrastructure/http/request-body.ts` y `src/infrastructure/http/error-response.ts`
+- [x] T014 [P] Crear reloj falso, UUID fijo, generador de posiciones por secuencia y factories de partida sin azar real en `tests/helpers/game-fixtures.ts`
+- [x] T015 [P] Crear estructura semántica accesible, foco visible y regiones de estado que no dependan solo del color en `src/app/page.tsx` y `src/app/globals.css`
+- [x] T016 Configurar logging server-only con códigos controlados y redacción de credenciales en `src/infrastructure/observability/server-logger.ts`
+- [x] T017 Ampliar CI con jobs `openapi`, `format-lint`, `typecheck`, `unit-tests`, `integration-tests`, `build` y `e2e`, sus `needs`, ausencia de `continue-on-error` y ejecución en PR/main en `.github/workflows/ci.yml`
 
 **Checkpoint**: fundamentos compartidos listos y comprobables sin implementar comportamiento de historias.
 
@@ -66,19 +66,19 @@ description: "Tareas propuestas para implementar Snake SDD"
 
 ### Pruebas de HU-001
 
-- [ ] T018 [P] [US1] Escribir pruebas unitarias inicialmente fallidas de `prepared`, `START`, configuración válida y estado visible para RF-001 y RF-002 en `tests/unit/game/state-machine-lifecycle.test.ts`
-- [ ] T019 [P] [US1] Escribir pruebas unitarias inicialmente fallidas de pausa, reanudación, conservación durante 10 segundos y acciones incompatibles para RF-003 y RF-004 en `tests/unit/game/state-machine-pause.test.ts`
-- [ ] T020 [P] [US1] Escribir pruebas unitarias inicialmente fallidas de reinicio desde todos los estados y confirmación Guardar/Descartar/Cancelar para RF-005 y RF-030 en `tests/unit/game/state-machine-restart.test.ts`
-- [ ] T021 [P] [US1] Escribir recorrido E2E inicialmente fallido de `Enter`, `Espacio`, `R`, estados visibles en un máximo de 1 segundo (CE-002) y reinicio preparado con puntuación cero para RF-001 a RF-005 y RF-030 en `tests/e2e/hu-001-game-lifecycle.spec.ts`
+- [x] T018 [P] [US1] Escribir pruebas unitarias inicialmente fallidas de `prepared`, `START`, configuración válida y estado visible para RF-001 y RF-002 en `tests/unit/game/state-machine-lifecycle.test.ts`
+- [x] T019 [P] [US1] Escribir pruebas unitarias inicialmente fallidas de pausa, reanudación, conservación durante 10 segundos y acciones incompatibles para RF-003 y RF-004 en `tests/unit/game/state-machine-pause.test.ts`
+- [x] T020 [P] [US1] Escribir pruebas unitarias inicialmente fallidas de reinicio desde todos los estados y confirmación Guardar/Descartar/Cancelar para RF-005 y RF-030 en `tests/unit/game/state-machine-restart.test.ts`
+- [x] T021 [P] [US1] Escribir recorrido E2E inicialmente fallido de `Enter`, `Espacio`, `R`, estados visibles en un máximo de 1 segundo (CE-002) y reinicio preparado con puntuación cero para RF-001 a RF-005 y RF-030 en `tests/e2e/hu-001-game-lifecycle.spec.ts`
 
 ### Implementación de HU-001
 
-- [ ] T022 [US1] Implementar comandos, guardas y transiciones `prepared`, `running`, `paused` y `finished` para RF-001 a RF-004 en `src/domain/game/state-machine.ts`
-- [ ] T023 [US1] Implementar reinicio directo y estados `pending`, `saving`, `saveError`, `saved` con confirmación de tres opciones para RF-005 y RF-030 en `src/domain/game/state-machine.ts`
-- [ ] T024 [US1] Implementar temporizador de tick fijo, despacho de comandos y limpieza segura al desmontar en `src/presentation/hooks/use-snake-game.ts`
-- [ ] T025 [P] [US1] Crear controles y estado visible en español para iniciar, pausar y reanudar en `src/presentation/components/game-controls.tsx` y `src/presentation/components/game-status.tsx`
-- [ ] T026 [P] [US1] Crear diálogo accesible Guardar primero/Descartar/Cancelar sin pérdida accidental del pendiente en `src/presentation/components/restart-confirmation.tsx`
-- [ ] T027 [US1] Integrar HU-001 en `src/app/page.tsx` y hacer pasar `tests/unit/game/state-machine-lifecycle.test.ts`, `tests/unit/game/state-machine-pause.test.ts`, `tests/unit/game/state-machine-restart.test.ts` y `tests/e2e/hu-001-game-lifecycle.spec.ts`
+- [x] T022 [US1] Implementar comandos, guardas y transiciones `prepared`, `running`, `paused` y `finished` para RF-001 a RF-004 en `src/domain/game/state-machine.ts`
+- [x] T023 [US1] Implementar reinicio directo y estados `pending`, `saving`, `saveError`, `saved` con confirmación de tres opciones para RF-005 y RF-030 en `src/domain/game/state-machine.ts`
+- [x] T024 [US1] Implementar temporizador de tick fijo, despacho de comandos y limpieza segura al desmontar en `src/presentation/hooks/use-snake-game.ts`
+- [x] T025 [P] [US1] Crear controles y estado visible en español para iniciar, pausar y reanudar en `src/presentation/components/game-controls.tsx` y `src/presentation/components/game-status.tsx`
+- [x] T026 [P] [US1] Crear diálogo accesible Guardar primero/Descartar/Cancelar sin pérdida accidental del pendiente en `src/presentation/components/restart-confirmation.tsx`
+- [x] T027 [US1] Integrar HU-001 en `src/app/page.tsx` y hacer pasar `tests/unit/game/state-machine-lifecycle.test.ts`, `tests/unit/game/state-machine-pause.test.ts`, `tests/unit/game/state-machine-restart.test.ts` y `tests/e2e/hu-001-game-lifecycle.spec.ts`
 
 **Checkpoint**: HU-001 funciona y se prueba de forma independiente como MVP; no se avanza sin evidencia y aprobación aplicables.
 
@@ -312,3 +312,18 @@ HU-005: T051 + T052 + T053 + T054 + T055 + T056 + T057
 - Los comandos destructivos de Supabase requieren autorización humana y una base local desechable confirmada.
 - Cada historia debe desarrollarse en su rama GitHub Flow independiente desde `main` actualizado y con clave Jira real, únicamente cuando exista autorización específica para Jira y Git.
 - No se permiten commits, pushes, PR, merges, Jira, despliegues o cambios de fase por inferencia de este documento.
+
+## Registro de ejecución autorizado — HU-001 / KAN-2
+
+- Propuesta de implementación; requiere revisión humana del PR antes de integrar.
+- Autorización humana del 2026-10-20 en el chat `Inspeccionar entorno Snake SDD`: Constitution, Specify, Clarify, Plan, Checklist, Tasks y Analyze aprobados; ejecución de T002–T027 y operaciones Git/Jira de KAN-2 autorizadas.
+- T001 ejecutada previamente con Redocly CLI 2.53.3 y Node 24.19.0, código 0; evidencia y aprobación Analyze en KAN-5, comentario 10000. No se repite esta puerta.
+- Base de HU-001: main/origin/main `8bf5701af50298e3cb99bca34f4fdcca72bfc1f8`; rama `feature/KAN-2-game-lifecycle`.
+- T018–T020: el intento anterior registró pruebas fallidas por ausencia de `state-machine.ts`, seguidas de 11 unitarias satisfactorias. T021: fallo inicial por ausencia de servidor y posterior fallo real del selector de alerta; corregido en este incremento. T026: regresión de foco fallida antes de corregir el diálogo modal.
+- No se implementan movimiento, alimento, colisiones ni persistencia real. Los estados finales de HU-001 se verifican con fixtures habilitados solo por `E2E_FIXTURES=1` y dobles de guardado.
+- HU-002 requiere HU-001 revisada e integrada y una rama desde main actualizado. No se inicia mientras falte esa base.
+- Verificación local final: Node 24.19.0; `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run openapi:lint`, `npm run test:unit` (11), `npm run test:integration` (10), `npm run build` y `npm run test:e2e` (6, Chromium/build de producción, un worker): códigos 0. La validación OpenAPI pre-PR es el control obligatorio de publicación; no repite la fase T001.
+- Fallos reales conservados en el historial del chat: arranque E2E previo sin sockets, selector de alerta ambiguo, navegación Tab del diálogo, dependencia React y tipo ProcessEnv del entorno ficticio. Corregidos y revalidados los controles afectados.
+- T002–T017: herramientas, versiones exactas/lockfile, límites de capas, modelos/puertos, fixtures, HTTP limitado, configuración y logging server-only; CI ampliada conservando repository-integrity. Integración actual valida exclusivamente Fundamentos; persistencia/Supabase corresponde a HU-005 y no se declara probada.
+- T018–T027: ciclo prepared/running/paused, reinicio directo y protegido, guardado simulado sin afirmar persistencia, pausa equivalente a 10 segundos, diálogo modal con foco y cancelación segura, interfaz española y regiones accesibles. RF-001–RF-005 y RF-030 referenciados en las pruebas.
+- El bloque Next.js añadido por el framework en AGENTS.md se conserva como parte del Setup; no se modificaron constitución, Spec Kit ni especificación.

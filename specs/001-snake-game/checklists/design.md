@@ -41,7 +41,7 @@
 - [x] CHK020 ¿La entrada de alias evita rechazar antes del recorte valores válidos y documenta normalización antes de validar 1 a 20 caracteres? [OpenAPI `SaveResultRequest.alias`; Data model §4]
 - [x] CHK021 ¿Los esquemas de respuesta representan de forma completa `created`, `alreadyRecorded`, ranking, validación, conflicto, cuerpo demasiado grande, método no permitido e indisponibilidad? [OpenAPI `components/schemas`; Plan §Seguridad y errores]
 - [x] CHK022 ¿La trazabilidad del contrato enlaza cada operación y respuesta con HU-005 y los RF aplicables, sin omisiones ni referencias inexistentes? [OpenAPI `x-traceability`; Spec RF-021 a RF-028 y RF-031]
-- [ ] CHK023 ¿Se ha ejecutado con resultado satisfactorio una validación automatizada de sintaxis y semántica OpenAPI 3.1 antes de implementar Route Handlers, clientes o pruebas de contrato? [Pendiente obligatorio; OpenAPI completo; Quickstart §8]
+- [x] CHK023 ¿Se ha ejecutado con resultado satisfactorio una validación automatizada de sintaxis y semántica OpenAPI 3.1 antes de implementar Route Handlers, clientes o pruebas de contrato? [Pendiente obligatorio; OpenAPI completo; Quickstart §8]
 - [x] CHK024 ¿Está definido qué comando o herramienta reproducible realizará la validación OpenAPI 3.1 en local y CI, sin depender de una comprobación manual? [Plan §Integración continua y despliegue; Quickstart §§6 y 8]
 
 ## Estrategia de pruebas
@@ -78,3 +78,6 @@
 - Marcar `[x]` solo después de comprobar el criterio documental; no representa trabajo de implementación terminado.
 - `$speckit-tasks` requiere aprobación humana explícita de este checklist.
 - `checklists/requirements.md` conserva su ciclo independiente de Specify y Clarify.
+
+
+- Cierre posterior de CHK023: T001 ejecutada con Redocly CLI 2.53.3, Node 24.19.0 y código 0; evidencia en KAN-5, comentario 10000. Registro autorizado expresamente por la persona responsable el 2026-10-20. Las notas anteriores describen la situación histórica previa a T001.

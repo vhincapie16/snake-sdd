@@ -1,0 +1,44 @@
+{
+  "name": "snake-sdd",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Juego Snake web desarrollado mediante Spec-Driven Development.",
+  "engines": {
+    "node": "24.19.0",
+    "npm": "11.11.1"
+  },
+  "packageManager": "npm@11.11.1",
+  "scripts": {
+    "dev": "next dev",
+    "start": "next start",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\" \"*.{json,ts,mjs}\" \".github/workflows/*.yml\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.{ts,tsx}\" \"*.{json,ts,mjs}\" \".github/workflows/*.yml\"",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "openapi:lint": "redocly lint --extends spec specs/001-snake-game/contracts/results-api.openapi.yml",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "build": "next build",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "next": "16.4.2",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "0.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@redocly/cli": "2.53.3",
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.2",
+    "prettier": "3.9.10",
+    "typescript": "5.9.3",
+    "vite": "8.3.4",
+    "vitest": "5.0.5"
+  }
+}
