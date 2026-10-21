@@ -188,6 +188,8 @@ description: "Tareas propuestas para implementar Snake SDD"
 
 **Evidencia HU-005 / KAN-5 (2026-10-21)**: T051–T059 y T061–T069 verificadas mediante pruebas unitarias, contrato HTTP, SDK con transporte simulado, E2E y dos suites reales contra el proyecto de pruebas autorizado. La migración T059 se aplicó una sola vez con autorización específica; después se autorizaron once resultados automatizados controlados, sin semilla ni limpieza. Se aprobó expresamente conservar los ocho jobs de CI y ejecutar la persistencia real fuera de CI, sin secretos remotos en GitHub. T060 permanece pendiente: configuración y semilla preparadas, pero Supabase local no ejecutado ni validado. La evidencia detallada y los límites están en `supabase/README.md`; la revisión humana y Jira siguen pendientes.
 
+**Evidencia manual adicional de T056, T057 y T069 (2026-10-21)**: con autorización humana específica se guardó una sola partida real, alias `KAN5_Manual_1`, 10 puntos, UUID `8d892e32-60ba-4485-a522-96a3afef42b7`. Consultas por alias e identificador acreditaron un único registro nuevo (total 11 → 12), conservado sin cambios después de recargar la aplicación; la página recargada lo mostró además en posición 10. Sin fixtures, relojes simulados, semillas, limpiezas ni migraciones. Detalle en `supabase/README.md`. No se alteran otras tareas ni la excepción de CI; T060 sigue pendiente.
+
 **Checkpoint**: HU-005 es persistente, idempotente y verificable con Supabase local; ninguna operación remota queda autorizada.
 
 ---
