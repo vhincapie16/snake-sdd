@@ -92,16 +92,16 @@ description: "Tareas propuestas para implementar Snake SDD"
 
 ### Pruebas de HU-002
 
-- [ ] T028 [P] [US2] Escribir pruebas unitarias inicialmente fallidas para cuatro flechas, primera dirección válida, rechazo de opuesta sin consumir oportunidad e ignorado por estado/tecla para RF-006 a RF-010 en `tests/unit/game/movement.test.ts`
-- [ ] T029 [P] [US2] Escribir recorrido E2E inicialmente fallido de reconocimiento visual menor o igual a 100 ms y movimiento solo en el tick siguiente para RF-006 a RF-010 en `tests/e2e/hu-002-keyboard-control.spec.ts`
+- [x] T028 [P] [US2] Escribir pruebas unitarias inicialmente fallidas para cuatro flechas, primera dirección válida, rechazo de opuesta sin consumir oportunidad e ignorado por estado/tecla para RF-006 a RF-010 en `tests/unit/game/movement.test.ts`
+- [x] T029 [P] [US2] Escribir recorrido E2E inicialmente fallido de reconocimiento visual menor o igual a 100 ms y movimiento solo en el tick siguiente para RF-006 a RF-010 en `tests/e2e/hu-002-keyboard-control.spec.ts`
 
 ### Implementación de HU-002
 
-- [ ] T030 [US2] Implementar direcciones, oposición y cálculo de siguiente celda como funciones puras en `src/domain/game/movement.ts`
-- [ ] T031 [US2] Incorporar `QUEUE_DIRECTION` con primera entrada válida, oportunidad conservada tras oposición e ignorado posterior en `src/domain/game/state-machine.ts`
-- [ ] T032 [US2] Capturar flechas únicamente durante `running`, impedir desplazamiento de página y limpiar listeners en `src/presentation/hooks/use-snake-game.ts`
-- [ ] T033 [P] [US2] Mostrar reconocimiento visual de la dirección aceptada sin mover anticipadamente la serpiente en `src/presentation/components/game-status.tsx`
-- [ ] T034 [US2] Integrar HU-002 y hacer pasar `tests/unit/game/movement.test.ts` y `tests/e2e/hu-002-keyboard-control.spec.ts`
+- [x] T030 [US2] Implementar direcciones, oposición y cálculo de siguiente celda como funciones puras en `src/domain/game/movement.ts`
+- [x] T031 [US2] Incorporar `QUEUE_DIRECTION` con primera entrada válida, oportunidad conservada tras oposición e ignorado posterior en `src/domain/game/state-machine.ts`
+- [x] T032 [US2] Capturar flechas únicamente durante `running`, impedir desplazamiento de página y limpiar listeners en `src/presentation/hooks/use-snake-game.ts`
+- [x] T033 [P] [US2] Mostrar reconocimiento visual de la dirección aceptada sin mover anticipadamente la serpiente en `src/presentation/components/game-status.tsx`
+- [x] T034 [US2] Integrar HU-002 y hacer pasar `tests/unit/game/movement.test.ts` y `tests/e2e/hu-002-keyboard-control.spec.ts`
 
 **Checkpoint**: HU-002 es verificable con ticks y entradas controlados, conservando HU-001.
 
@@ -327,3 +327,12 @@ HU-005: T051 + T052 + T053 + T054 + T055 + T056 + T057
 - T002–T017: herramientas, versiones exactas/lockfile, límites de capas, modelos/puertos, fixtures, HTTP limitado, configuración y logging server-only; CI ampliada conservando repository-integrity. Integración actual valida exclusivamente Fundamentos; persistencia/Supabase corresponde a HU-005 y no se declara probada.
 - T018–T027: ciclo prepared/running/paused, reinicio directo y protegido, guardado simulado sin afirmar persistencia, pausa equivalente a 10 segundos, diálogo modal con foco y cancelación segura, interfaz española y regiones accesibles. RF-001–RF-005 y RF-030 referenciados en las pruebas.
 - El bloque Next.js añadido por el framework en AGENTS.md se conserva como parte del Setup; no se modificaron constitución, Spec Kit ni especificación.
+
+## Registro de ejecución autorizado — HU-002 / KAN-1
+
+- Propuesta de implementación en `feature/KAN-1-snake-movement`, creada desde `main` actualizado tras integrar el PR #4; requiere revisión humana antes del merge.
+- T028–T029: pruebas escritas primero; la prueba unitaria falló inicialmente por ausencia de `movement.ts` y la E2E detectó dos configuraciones no deterministas del reloj antes de quedar corregida.
+- T030–T034: movimiento puro en las cuatro direcciones, una entrada válida por tick, rechazo de opuesta sin consumir la oportunidad, entradas adicionales ignoradas, captura solo en `running`, prevención del desplazamiento de página y reconocimiento visual inmediato.
+- El desplazamiento ocurre únicamente en el tick fijo de 150 ms. No se implementaron alimento, crecimiento, colisiones ni persistencia.
+- Evidencia local: `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run openapi:lint`, `npm run test:unit` (22), `npm run test:integration` (10), `npm run build` y `npm run test:e2e` (9, Chromium/build de producción): códigos 0 tras corregir los fallos del alcance.
+- RF-006–RF-010 quedan trazados en `movement.test.ts` y `hu-002-keyboard-control.spec.ts`; la suite E2E conserva seis pruebas de regresión de HU-001.

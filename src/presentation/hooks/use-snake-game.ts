@@ -5,6 +5,7 @@ import type { GameDependencies } from "@/application/ports/game-dependencies";
 import {
   TICK_INTERVAL_MS,
   type Cell,
+  type Direction,
   type GameState,
   type PendingResult,
   type SavedResultRef,
@@ -23,6 +24,13 @@ export interface UseSnakeGameOptions {
 }
 
 const initialFood: Cell = { x: 15, y: 10 };
+
+const DIRECTION_BY_KEY: Readonly<Partial<Record<string, Direction>>> = {
+  ArrowUp: "up",
+  ArrowDown: "down",
+  ArrowLeft: "left",
+  ArrowRight: "right",
+};
 
 function createBrowserDependencies(): GameDependencies {
   return {
@@ -77,15 +85,25 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
     };
   }, [saveResult, state.resultState]);
 
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    if (event.repeat) return;
-    if (event.key === "Enter") dispatch({ type: "START" });
-    if (event.code === "Space") {
-      event.preventDefault();
-      dispatch({ type: "TOGGLE_PAUSE" });
-    }
-    if (event.key.toLowerCase() === "r") dispatch({ type: "REQUEST_RESTART" });
-  }, []);
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.repeat) return;
+      const requestedDirection = DIRECTION_BY_KEY[event.key];
+      if (requestedDirection && state.status === "running") {
+        event.preventDefault();
+        dispatch({ type: "QUEUE_DIRECTION", direction: requestedDirection });
+        return;
+      }
+      if (event.key === "Enter") dispatch({ type: "START" });
+      if (event.code === "Space") {
+        event.preventDefault();
+        dispatch({ type: "TOGGLE_PAUSE" });
+      }
+      if (event.key.toLowerCase() === "r")
+        dispatch({ type: "REQUEST_RESTART" });
+    },
+    [state.status],
+  );
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
