@@ -1,0 +1,110 @@
+# Configuracion sensible y secretos
+.env
+.env.*
+!.env.example
+!.env.*.example
+credentials*.json
+!credentials.example.json
+secrets*.json
+!secrets.example.json
+
+# Claves privadas, certificados y almacenes de claves
+*.pem
+*.key
+*.pfx
+*.p12
+*.jks
+*.keystore
+id_rsa*
+id_ed25519*
+
+# Datos locales y archivos de diagnostico
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# Archivos temporales y caches
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+.cache/
+tmp/
+temp/
+
+# Dependencias y caches de gestores de paquetes para TypeScript/JavaScript
+node_modules/
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/install-state.gz
+
+# Compilacion y salidas de frameworks web
+dist/
+build/
+out/
+.next/
+.nuxt/
+.output/
+.svelte-kit/
+.astro/
+.vercel/
+.netlify/
+*.tsbuildinfo
+
+# Cobertura y reportes de pruebas
+coverage/
+.nyc_output/
+test-results/
+playwright-report/
+blob-report/
+cypress/screenshots/
+cypress/videos/
+junit*.xml
+
+# Caches de herramientas de desarrollo web
+.turbo/
+.parcel-cache/
+.vite/
+.swc/
+.eslintcache
+.stylelintcache
+
+# Registros de gestores de paquetes
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Variantes de configuracion exclusivamente locales
+*.local.js
+*.local.cjs
+*.local.mjs
+*.local.ts
+*.local.json
+
+# Configuracion local de editores y del sistema operativo
+.idea/
+.vs/
+.vscode/*.local.*
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Estado local de Spec Kit; se conservan las exclusiones de .specify/.gitignore
+/.specify/feature.json
+/.specify/extensions/*/local-config.yml
+/.specify/integrations/packages/
+/.specify/integrations/packages.json
+
+# Se versionan deliberadamente .agents/skills, .specify, AGENTS.md,
+# los documentos Markdown y los archivos de bloqueo de dependencias.
+!package-lock.json
+!yarn.lock
+!pnpm-lock.yaml
+!bun.lock
+!bun.lockb
+!deno.lock
