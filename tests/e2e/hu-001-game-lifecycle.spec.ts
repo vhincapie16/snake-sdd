@@ -62,7 +62,20 @@ test.describe("HU-001 / RF-001 a RF-005 y RF-030", () => {
   test("conserva el pendiente si el guardado no está disponible", async ({
     page,
   }) => {
+    // HU-005 sustituye el guardado ausente por un error de transporte explícito.
+    await page.route("**/api/results", (route) =>
+      route.fulfill({
+        status: 503,
+        json: {
+          code: "PERSISTENCE_UNAVAILABLE",
+          retryable: true,
+          message: "No disponible",
+        },
+      }),
+    );
     await page.goto("/?fixture=pending-result");
+    await page.getByLabel("Alias", { exact: true }).fill("Ana");
+    await page.getByLabel("Alias", { exact: true }).press("Tab");
     await page.keyboard.press("KeyR");
     await page
       .getByRole("dialog", { name: "Resultado pendiente" })

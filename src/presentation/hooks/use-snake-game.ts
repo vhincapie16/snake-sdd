@@ -16,6 +16,11 @@ import {
 } from "@/domain/game/state-machine";
 import { listFreeCells } from "@/domain/game/food";
 import { createBrowserGameId } from "@/infrastructure/random/browser-game-id";
+import { ResultValidationError } from "@/domain/results/result";
+import {
+  ResultRequestError,
+  savePendingResult,
+} from "@/presentation/services/results-api";
 
 export type SaveResult = (result: PendingResult) => Promise<SavedResultRef>;
 
@@ -47,7 +52,7 @@ function createBrowserDependencies(): GameDependencies {
 }
 
 export function useSnakeGame(options: UseSnakeGameOptions = {}) {
-  const saveResult = options.saveResult;
+  const saveResult = options.saveResult ?? savePendingResult;
   const dependencies = useMemo(() => createBrowserDependencies(), []);
   const [state, dispatch] = useReducer(
     (current: GameState, command: GameCommand) =>
@@ -69,20 +74,20 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
     let active = true;
     const pending = state.resultState.result;
 
-    if (!saveResult) {
-      dispatch({ type: "SAVE_FAILED", errorCode: "PERSISTENCE_NOT_AVAILABLE" });
-      return;
-    }
-
     void saveResult(pending)
       .then((result) => {
         if (active) dispatch({ type: "SAVE_SUCCEEDED", result });
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         if (active)
           dispatch({
             type: "SAVE_FAILED",
-            errorCode: "PERSISTENCE_UNAVAILABLE",
+            errorCode:
+              error instanceof ResultValidationError
+                ? "VALIDATION_ERROR"
+                : error instanceof ResultRequestError
+                  ? error.code
+                  : "PERSISTENCE_UNAVAILABLE",
           });
       });
 
@@ -94,6 +99,13 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.repeat) return;
+      if (
+        event.target instanceof Element &&
+        event.target.closest(
+          "input, textarea, select, [contenteditable='true']",
+        )
+      )
+        return;
       const requestedDirection = DIRECTION_BY_KEY[event.key];
       if (requestedDirection && state.status === "running") {
         event.preventDefault();
@@ -128,5 +140,7 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
     saveAndRestart: () => dispatch({ type: "CONFIRM_SAVE_AND_RESTART" }),
     discardAndRestart: () => dispatch({ type: "CONFIRM_DISCARD_AND_RESTART" }),
     cancelRestart: () => dispatch({ type: "CANCEL_RESTART" }),
+    updateAlias: (alias: string) => dispatch({ type: "UPDATE_ALIAS", alias }),
+    saveResult: () => dispatch({ type: "SAVE_RESULT" }),
   };
 }

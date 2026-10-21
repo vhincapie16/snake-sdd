@@ -21,13 +21,6 @@ export function GameResult({ state }: Readonly<{ state: GameState }>) {
         pendiente, confirma qué hacer antes de reiniciar. Después pulsa Enter
         para comenzar.
       </p>
-      <button
-        type="button"
-        disabled
-        title="El ranking todavía no está disponible."
-      >
-        Consultar ranking
-      </button>
     </section>
   );
 }

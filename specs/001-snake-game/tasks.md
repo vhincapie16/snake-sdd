@@ -163,28 +163,30 @@ description: "Tareas propuestas para implementar Snake SDD"
 
 ### Pruebas de HU-005
 
-- [ ] T051 [P] [US5] Escribir pruebas unitarias inicialmente fallidas que primero recorten y luego acepten 1–20 letras Unicode, números, espacios, guiones y guiones bajos, permitiendo alias repetidos, para RF-026 y RF-027 en `tests/unit/results/result-schema.test.ts`
-- [ ] T052 [P] [US5] Escribir pruebas unitarias inicialmente fallidas de `PendingResult` con puntuación entera no negativa, inmutable y múltiplo de 10, estados `pending/saving/saveError/saved`, pérdida al recargar y descarte para RF-021 en `tests/unit/results/result-state.test.ts`
-- [ ] T053 [P] [US5] Escribir pruebas unitarias inicialmente fallidas de Guardar primero, fallo conservado y reinicio directo tras `saved` para RF-030 y RF-031 en `tests/unit/results/restart-after-save.test.ts`
-- [ ] T054 [P] [US5] Escribir pruebas de contrato inicialmente fallidas para 200, 201, 405, 409, 413, 422 y 503, cuerpo máximo 4096 bytes y schemas OpenAPI para RF-022, RF-026 a RF-028 y RF-031 en `tests/integration/http/results-contract.test.ts`
-- [ ] T055 [P] [US5] Escribir integración inicialmente fallida de `ORDER BY score DESC, achieved_at ASC, game_id ASC LIMIT 10`, empates y menos de diez resultados para RF-024 y RF-025 en `tests/integration/persistence/ranking.test.ts`
-- [ ] T056 [P] [US5] Escribir integración inicialmente fallida de persistencia entre sesiones e idempotencia created/alreadyRecorded/conflict para RF-022, RF-023 y RF-028 en `tests/integration/persistence/result-repository.test.ts`
-- [ ] T057 [P] [US5] Escribir recorridos E2E inicialmente fallidos de alias, puntuación cero, guardado, reintento, ranking por estados permitidos y recarga para RF-021 a RF-028 y RF-031 en `tests/e2e/hu-005-results-ranking.spec.ts`
+- [x] T051 [P] [US5] Escribir pruebas unitarias inicialmente fallidas que primero recorten y luego acepten 1–20 letras Unicode, números, espacios, guiones y guiones bajos, permitiendo alias repetidos, para RF-026 y RF-027 en `tests/unit/results/result-schema.test.ts`
+- [x] T052 [P] [US5] Escribir pruebas unitarias inicialmente fallidas de `PendingResult` con puntuación entera no negativa, inmutable y múltiplo de 10, estados `pending/saving/saveError/saved`, pérdida al recargar y descarte para RF-021 en `tests/unit/results/result-state.test.ts`
+- [x] T053 [P] [US5] Escribir pruebas unitarias inicialmente fallidas de Guardar primero, fallo conservado y reinicio directo tras `saved` para RF-030 y RF-031 en `tests/unit/results/restart-after-save.test.ts`
+- [x] T054 [P] [US5] Escribir pruebas de contrato inicialmente fallidas para 200, 201, 405, 409, 413, 422 y 503, cuerpo máximo 4096 bytes y schemas OpenAPI para RF-022, RF-026 a RF-028 y RF-031 en `tests/integration/http/results-contract.test.ts`
+- [x] T055 [P] [US5] Escribir integración inicialmente fallida de `ORDER BY score DESC, achieved_at ASC, game_id ASC LIMIT 10`, empates y menos de diez resultados para RF-024 y RF-025 en `tests/integration/persistence/ranking.test.ts`
+- [x] T056 [P] [US5] Escribir integración inicialmente fallida de persistencia entre sesiones e idempotencia created/alreadyRecorded/conflict para RF-022, RF-023 y RF-028 en `tests/integration/persistence/result-repository.test.ts`
+- [x] T057 [P] [US5] Escribir recorridos E2E inicialmente fallidos de alias, puntuación cero, guardado, reintento, ranking por estados permitidos y recarga para RF-021 a RF-028 y RF-031 en `tests/e2e/hu-005-results-ranking.spec.ts`
 
 ### Persistencia, API y aplicación de HU-005
 
-- [ ] T058 [P] [US5] Definir `ResultRepository` con operaciones idempotentes de guardar y Top 10, sin exponer Supabase al dominio, en `src/application/ports/result-repository.ts`
-- [ ] T059 [US5] Crear migración `game_results` con `game_id uuid NOT NULL PRIMARY KEY`, `alias varchar(20) NOT NULL CHECK (char_length(alias) BETWEEN 1 AND 20)`, `score integer NOT NULL CHECK (score >= 0 AND score % 10 = 0)`, `achieved_at timestamptz NOT NULL`, `created_at timestamptz NOT NULL DEFAULT now()`, índice `(score DESC, achieved_at ASC, game_id ASC)` y sin privilegios públicos en `supabase/migrations/202610200001_create_game_results.sql`
+- [x] T058 [P] [US5] Definir `ResultRepository` con operaciones idempotentes de guardar y Top 10, sin exponer Supabase al dominio, en `src/application/ports/result-repository.ts`
+- [x] T059 [US5] Crear migración `game_results` con `game_id uuid NOT NULL PRIMARY KEY`, `alias varchar(20) NOT NULL CHECK (char_length(alias) BETWEEN 1 AND 20)`, `score integer NOT NULL CHECK (score >= 0 AND score % 10 = 0)`, `achieved_at timestamptz NOT NULL`, `created_at timestamptz NOT NULL DEFAULT now()`, índice `(score DESC, achieved_at ASC, game_id ASC)` y sin privilegios públicos en `supabase/migrations/202610200001_create_game_results.sql`
 - [ ] T060 [P] [US5] Configurar Supabase local y semilla de al menos 15 resultados con empates, UUID y fechas fijos en `supabase/config.toml` y `supabase/seed.sql`
-- [ ] T061 [P] [US5] Implementar cliente Supabase exclusivamente server-only usando configuración validada en `src/infrastructure/supabase/server-client.ts`
-- [ ] T062 [US5] Implementar normalización y validación cerrada de `gameId` UUID, alias corregible, `score >= 0` y múltiplo de 10, y `achievedAt` UTC en `src/infrastructure/validation/result-schema.ts`
-- [ ] T063 [US5] Implementar Repository con inserción, reintento idéntico, conflicto sin sobrescritura y Top 10 determinista en `src/infrastructure/persistence/supabase-result-repository.ts`
-- [ ] T064 [P] [US5] Implementar casos de uso de guardado y consulta con traducción controlada de fallos en `src/application/use-cases/save-result.ts` y `src/application/use-cases/get-ranking.ts`
-- [ ] T065 [US5] Implementar `POST /api/results` con límite previo de 4096 bytes y respuestas OpenAPI 200/201/405/409/413/422/503 en `src/app/api/results/route.ts`
-- [ ] T066 [US5] Implementar `GET /api/ranking` con respuestas OpenAPI 200/405/503 y máximo de diez filas en `src/app/api/ranking/route.ts`
-- [ ] T067 [P] [US5] Crear formulario de alias y mensajes corregibles que conserven el pendiente hasta guardar, descartar o cerrar/recargar en `src/presentation/components/result-form.tsx`
-- [ ] T068 [P] [US5] Crear ranking accesible desde `prepared` y `finished`, nunca desde `running` o `paused`, en `src/presentation/components/ranking.tsx`
-- [ ] T069 [US5] Integrar guardado, reintentos, estados `saveError/saved`, reinicio y ranking; hacer pasar todas las pruebas HU-005 en `src/presentation/hooks/use-snake-game.ts` y `src/app/page.tsx`
+- [x] T061 [P] [US5] Implementar cliente Supabase exclusivamente server-only usando configuración validada en `src/infrastructure/supabase/server-client.ts`
+- [x] T062 [US5] Implementar normalización y validación cerrada de `gameId` UUID, alias corregible, `score >= 0` y múltiplo de 10, y `achievedAt` UTC en `src/infrastructure/validation/result-schema.ts`
+- [x] T063 [US5] Implementar Repository con inserción, reintento idéntico, conflicto sin sobrescritura y Top 10 determinista en `src/infrastructure/persistence/supabase-result-repository.ts`
+- [x] T064 [P] [US5] Implementar casos de uso de guardado y consulta con traducción controlada de fallos en `src/application/use-cases/save-result.ts` y `src/application/use-cases/get-ranking.ts`
+- [x] T065 [US5] Implementar `POST /api/results` con límite previo de 4096 bytes y respuestas OpenAPI 200/201/405/409/413/422/503 en `src/app/api/results/route.ts`
+- [x] T066 [US5] Implementar `GET /api/ranking` con respuestas OpenAPI 200/405/503 y máximo de diez filas en `src/app/api/ranking/route.ts`
+- [x] T067 [P] [US5] Crear formulario de alias y mensajes corregibles que conserven el pendiente hasta guardar, descartar o cerrar/recargar en `src/presentation/components/result-form.tsx`
+- [x] T068 [P] [US5] Crear ranking accesible desde `prepared` y `finished`, nunca desde `running` o `paused`, en `src/presentation/components/ranking.tsx`
+- [x] T069 [US5] Integrar guardado, reintentos, estados `saveError/saved`, reinicio y ranking; hacer pasar todas las pruebas HU-005 en `src/presentation/hooks/use-snake-game.ts` y `src/app/page.tsx`
+
+**Evidencia HU-005 / KAN-5 (2026-10-21)**: T051–T059 y T061–T069 verificadas mediante pruebas unitarias, contrato HTTP, SDK con transporte simulado, E2E y dos suites reales contra el proyecto de pruebas autorizado. La migración T059 se aplicó una sola vez con autorización específica; después se autorizaron once resultados automatizados controlados, sin semilla ni limpieza. Se aprobó expresamente conservar los ocho jobs de CI y ejecutar la persistencia real fuera de CI, sin secretos remotos en GitHub. T060 permanece pendiente: configuración y semilla preparadas, pero Supabase local no ejecutado ni validado. La evidencia detallada y los límites están en `supabase/README.md`; la revisión humana y Jira siguen pendientes.
 
 **Checkpoint**: HU-005 es persistente, idempotente y verificable con Supabase local; ninguna operación remota queda autorizada.
 

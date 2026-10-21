@@ -49,7 +49,7 @@ test.describe("HU-004 / RF-016 a RF-020: colisiones y resultado", () => {
       await expect(page.getByTestId("final-score")).toHaveText("30");
       await expect(
         page.getByRole("button", { name: "Consultar ranking" }),
-      ).toBeDisabled();
+      ).toBeEnabled(); // HU-005 habilita el acceso al ranking desde finished.
 
       if (fixture === "wall-collision") await page.keyboard.press("KeyR");
       else

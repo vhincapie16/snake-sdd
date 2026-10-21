@@ -22,6 +22,7 @@ export type GameCommand =
   | { readonly type: "TOGGLE_PAUSE" }
   | { readonly type: "REQUEST_RESTART" }
   | { readonly type: "SAVE_RESULT" }
+  | { readonly type: "UPDATE_ALIAS"; readonly alias: string }
   | { readonly type: "CONFIRM_SAVE_AND_RESTART" }
   | { readonly type: "CONFIRM_DISCARD_AND_RESTART" }
   | { readonly type: "CANCEL_RESTART" }
@@ -138,6 +139,20 @@ export function transitionGame(
       return requestRestart(state, dependencies);
     case "SAVE_RESULT":
       return beginSaving(state, false);
+    case "UPDATE_ALIAS":
+      if (
+        state.status !== "finished" ||
+        (state.resultState.status !== "pending" &&
+          state.resultState.status !== "saveError")
+      )
+        return state;
+      return {
+        ...state,
+        resultState: {
+          ...state.resultState,
+          result: { ...state.resultState.result, aliasInput: command.alias },
+        },
+      };
     case "CONFIRM_SAVE_AND_RESTART":
       return state.restartConfirmation ? beginSaving(state, true) : state;
     case "CONFIRM_DISCARD_AND_RESTART":

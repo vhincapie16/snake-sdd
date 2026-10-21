@@ -20,6 +20,7 @@ function createE2eFixture(fixture: string | undefined): GameState | undefined {
   if (process.env.E2E_FIXTURES !== "1") return undefined;
   if (
     fixture !== "pending-result" &&
+    fixture !== "zero-result" &&
     fixture !== "saved-result" &&
     fixture !== "food-and-score" &&
     fixture !== "almost-full-board" &&
@@ -99,14 +100,14 @@ function createE2eFixture(fixture: string | undefined): GameState | undefined {
   const achievedAt = "2026-10-20T12:00:00.000Z";
   const result = {
     gameId: state.gameId,
-    score: 30,
+    score: fixture === "zero-result" ? 0 : 30,
     achievedAt,
     aliasInput: "",
   };
   return {
     ...state,
     status: "finished",
-    score: 30,
+    score: result.score,
     finishedAt: achievedAt,
     finishReason: "wall",
     resultState:
