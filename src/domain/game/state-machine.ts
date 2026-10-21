@@ -2,12 +2,14 @@ import {
   areCellsEqual,
   type Cell,
   type Direction,
+  type FinishReason,
   type GameState,
   type SavedResultRef,
 } from "@/domain/game/model";
 import { isOppositeDirection, nextCell } from "@/domain/game/movement";
 import { generateFood } from "@/domain/game/food";
 import { consumeFood } from "@/domain/game/scoring";
+import { detectCollision } from "@/domain/game/collisions";
 
 export interface GameTransitionDependencies {
   readonly clock: { now(): Date };
@@ -93,6 +95,31 @@ function beginSaving(state: GameState, restartAfterSave: boolean): GameState {
   };
 }
 
+function finishGame(
+  state: GameState,
+  reason: FinishReason,
+  dependencies: GameTransitionDependencies,
+): GameState {
+  const finishedAt = dependencies.clock.now().toISOString();
+  return {
+    ...state,
+    status: "finished",
+    food: null,
+    pendingDirection: null,
+    finishReason: reason,
+    finishedAt,
+    resultState: {
+      status: "pending",
+      result: {
+        gameId: state.gameId,
+        score: state.score,
+        achievedAt: finishedAt,
+        aliasInput: "",
+      },
+    },
+  };
+}
+
 export function transitionGame(
   state: GameState,
   command: GameCommand,
@@ -158,6 +185,12 @@ export function transitionGame(
       const nextHead = nextCell(head, direction);
       const consumed =
         state.food !== null && areCellsEqual(nextHead, state.food);
+      const collision = detectCollision(
+        nextHead,
+        state.snake.segments,
+        consumed,
+      );
+      if (collision) return finishGame(state, collision, dependencies);
       const { snake, score } = consumed
         ? consumeFood(state.snake, nextHead, state.score)
         : {
@@ -181,21 +214,6 @@ export function transitionGame(
         pendingDirection: null,
       };
       if (!consumed || food !== null) return moved;
-      const finishedAt = dependencies.clock.now().toISOString();
-      return {
-        ...moved,
-        status: "finished",
-        finishReason: "boardCompleted",
-        finishedAt,
-        resultState: {
-          status: "pending",
-          result: {
-            gameId: state.gameId,
-            score,
-            achievedAt: finishedAt,
-            aliasInput: "",
-          },
-        },
-      };
+      return finishGame(moved, "boardCompleted", dependencies);
   }
 }
