@@ -262,6 +262,10 @@ jobs:
       - run: npm run test:e2e
         env:
           CI: "true"
+      - name: Verificar controles e inicialización del cliente en desarrollo
+        run: npx playwright test --config playwright.dev.config.ts
+        env:
+          CI: "true"
       - name: Publicar reporte E2E solo ante fallo
         if: failure()
         uses: actions/upload-artifact@v4

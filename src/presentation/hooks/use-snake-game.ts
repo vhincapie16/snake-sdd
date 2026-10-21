@@ -15,6 +15,7 @@ import {
   type GameCommand,
 } from "@/domain/game/state-machine";
 import { listFreeCells } from "@/domain/game/food";
+import { createBrowserGameId } from "@/infrastructure/random/browser-game-id";
 
 export type SaveResult = (result: PendingResult) => Promise<SavedResultRef>;
 
@@ -33,7 +34,7 @@ const DIRECTION_BY_KEY: Readonly<Partial<Record<string, Direction>>> = {
 function createBrowserDependencies(): GameDependencies {
   return {
     clock: { now: () => new Date() },
-    uuid: { create: () => crypto.randomUUID() },
+    uuid: { create: createBrowserGameId },
     positions: {
       nextAvailable: (occupied) => {
         const free = listFreeCells(occupied);
@@ -99,7 +100,11 @@ export function useSnakeGame(options: UseSnakeGameOptions = {}) {
         dispatch({ type: "QUEUE_DIRECTION", direction: requestedDirection });
         return;
       }
-      if (event.key === "Enter") dispatch({ type: "START" });
+      if (event.key === "Enter" && state.status === "prepared") {
+        event.preventDefault();
+        dispatch({ type: "START" });
+        return;
+      }
       if (event.code === "Space") {
         event.preventDefault();
         dispatch({ type: "TOGGLE_PAUSE" });
